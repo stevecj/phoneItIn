@@ -1,11 +1,25 @@
 var PhoneItIn = (function(){
+  var Formatters = {
+    NANP : (function(){
+      function format(value){
+        return value.replace( /^(...)(...)(....)$/, '($1) $2-$3' );
+      }
+
+      return {
+        format : format
+      }
+    })()
+  };
+
+  var formatter = Formatters.NANP;
+
   function UI(){
   }
   UI.prototype = (function(){
     function addHelpToInput(input){
       var helpEl = document.createElement('DIV');
       helpEl.setAttribute('id', 'phin-help');
-      helpEl.innerHTML = '## value2 ##';
+      helpEl.innerHTML = formatter.format(input.value);
       input.parentNode.insertBefore(helpEl, input.nextChild);
     };
 
@@ -19,6 +33,7 @@ var PhoneItIn = (function(){
   })();
 
   return {
-    UI : UI
+    Formatters : Formatters ,
+    UI         : UI
   };
 })();

@@ -71,8 +71,9 @@ PhoneItInUIDriver.prototype = (function(){
       throw "Phone help element not next sibling of input";
     }
     var formattedValue = mentalModel.inputs[inputNum - 1].formattedVal ;
-    if(! helpEl.innerHTML.match(formattedValue) ){
-      throw "Phone help does not contain formatted input value";
+    var helpContent = helpEl.innerHTML;
+    if( helpContent.indexOf(formattedValue) < 0 ){
+      throw 'Phone help expected to contain "' + formattedValue + '", but was "' + helpContent + '".';
     }
     return true;
   }
