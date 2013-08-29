@@ -2,7 +2,7 @@ function PhoneItInUIDriver(){
 }
 PhoneItInUIDriver.prototype = (function(){
   var mentalModel = {};
-  var fixtureEl, form, inputs, ui;
+  var fixtureEl, inputs, ui;
 
   function teardown(){
     if(fixtureEl){
@@ -24,28 +24,26 @@ PhoneItInUIDriver.prototype = (function(){
     return fixtureEl;
   }
 
+  function createPopulatedInputs(){
+    var vitro = document.createElement('DIV')
+    vitro.innerHTML =
+      "<input type='text' value='value1' />" +
+      "<input type='text' value='value2' />";
+    inputs = [vitro.firstChild, vitro.lastChild];
+    getFixtureEl().appendChild(inputs[ 0 ]);
+    getFixtureEl().appendChild(inputs[ 1 ]);
+    mentalModel.inputs = [
+      {value: 'value1', formattedVal: '## value1 ##'} ,
+      {value: 'value2', formattedVal: '## value2 ##'}
+    ];
+  }
+
   function getInputByNum(inputNum){
-    console.log(form);
-    form.getElementsByTagName('INPUT')[inputNum - 1];
-  }
-
-  function createForm(){
-    if(! form ){
-      form = document.createElement('FORM');
-      form.innerHTML = "<input type='text' /><input type='text' />";
-      getFixtureEl().appendChild(form);
-      inputs = [form.firstChild, form.lastChild];
-      mentalModel.inputs = [{}, {}];
-    }
-  }
-
-  function populateFormInputs(){
-    mentalModel.inputs[0].value = inputs[0].value = 'value1';
-    mentalModel.inputs[1].value = inputs[1].value = 'value2';
+    return inputs[inputNum - 1];
   }
 
   function navigateToInput(inputNum){
-    inputs[inputNum -1].focus();
+    getInputByNum(inputNum).focus();
   }
 
   function enablePhoneHelpForInput(inputNum){
@@ -62,7 +60,7 @@ PhoneItInUIDriver.prototype = (function(){
     if(! helpEl.previousSibling == input ) {
       throw "Phone help element not next sibling of input";
     }
-    var formattedValue = mentalModel.formattedInputValue(inputNum);
+    var formattedValue = mentalModel.inputs[inputNum - 1].formattedVal ;
     if(! helpEl.innerHTML.match(formattedValue) ){
       throw "Phone help does not contain formatted input value";
     }
@@ -71,8 +69,7 @@ PhoneItInUIDriver.prototype = (function(){
 
   return {
     teardown                          : teardown                          ,
-    createForm                        : createForm                        ,
-    populateFormInputs                : populateFormInputs                ,
+    createPopulatedInputs             : createPopulatedInputs             ,
     enablePhoneHelpForInput           : enablePhoneHelpForInput           ,
     navigateToInput                   : navigateToInput                   ,
     enablePhoneHelpForInput           : enablePhoneHelpForInput           ,
