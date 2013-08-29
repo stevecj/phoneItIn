@@ -14,26 +14,33 @@ describe('PhoneItIn', function(){
     specDriver = null;
   });
 
-  describe("Given some populated inputs,", function(){
+  describe("Given some inputs,", function(){
 
     beforeEach(function(){
-      specDriver.createPopulatedInputs();
+      specDriver.createInputs();
     });
 
-    describe("and the second input is phone-help enabled,", function(){
+    describe("and the second input has an unformatted phone # value", function(){
 
       beforeEach(function(){
-        specDriver.enablePhoneHelpForInput(2);
+        specDriver.putUnformattedPhoneNumValueIntoInput(2);
       });
 
-      describe("when the user navigates to the phone-enabled input,", function(){
+      describe("and the second input is phone-help enabled,", function(){
 
         beforeEach(function(){
-          specDriver.navigateToInput(2);
+          specDriver.enablePhoneHelpForInput(2);
         });
 
-        it("displays phone entry help for the current input", function(){
-          expect( specDriver.isPhoneEntryHelpDisplayedForInput(2) ).toEqual( true );
+        describe("when the user navigates to the phone-enabled input,", function(){
+
+          beforeEach(function(){
+            specDriver.navigateToInput(2);
+          });
+
+          it("displays formatted phone # entry help for the current input", function(){
+            expect( specDriver.isPhoneEntryHelpDisplayedForInput(2) ).toEqual( true );
+          });
         });
       });
     });

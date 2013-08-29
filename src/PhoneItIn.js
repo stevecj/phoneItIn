@@ -5,6 +5,7 @@ var PhoneItIn = (function(){
     function addHelpToInput(input){
       var helpEl = document.createElement('DIV');
       helpEl.setAttribute('id', 'phin-help');
+      helpEl.innerHTML = '## value2 ##';
       input.parentNode.insertBefore(helpEl, input.nextChild);
     };
 

@@ -24,22 +24,32 @@ PhoneItInUIDriver.prototype = (function(){
     return fixtureEl;
   }
 
-  function createPopulatedInputs(){
+  function createInputs(){
     var vitro = document.createElement('DIV')
     vitro.innerHTML =
-      "<input type='text' value='value1' />" +
-      "<input type='text' value='value2' />";
+      "<input type='text' />" +
+      "<input type='text' />";
     inputs = [vitro.firstChild, vitro.lastChild];
     getFixtureEl().appendChild(inputs[ 0 ]);
     getFixtureEl().appendChild(inputs[ 1 ]);
     mentalModel.inputs = [
-      {value: 'value1', formattedVal: '## value1 ##'} ,
-      {value: 'value2', formattedVal: '## value2 ##'}
+      {value: undefined, formattedVal: undefined} ,
+      {value: undefined, formattedVal: undefined}
     ];
   }
 
   function getInputByNum(inputNum){
     return inputs[inputNum - 1];
+  }
+
+  function putUnformattedPhoneNumValueIntoInput(inputNum){
+    var unformatted = '5313456789', formatted = '(531) 345-6789';
+
+    getInputByNum(inputNum).value = unformatted;
+
+    var inputMM = mentalModel.inputs[inputNum - 1];
+    inputMM.value        = unformatted;
+    inputMM.formattedVal = formatted;
   }
 
   function navigateToInput(inputNum){
@@ -68,11 +78,12 @@ PhoneItInUIDriver.prototype = (function(){
   }
 
   return {
-    teardown                          : teardown                          ,
-    createPopulatedInputs             : createPopulatedInputs             ,
-    enablePhoneHelpForInput           : enablePhoneHelpForInput           ,
-    navigateToInput                   : navigateToInput                   ,
-    enablePhoneHelpForInput           : enablePhoneHelpForInput           ,
-    isPhoneEntryHelpDisplayedForInput : isPhoneEntryHelpDisplayedForInput , 
+    teardown                             : teardown                             ,
+    createInputs                         : createInputs                         ,
+    putUnformattedPhoneNumValueIntoInput : putUnformattedPhoneNumValueIntoInput ,
+    enablePhoneHelpForInput              : enablePhoneHelpForInput              ,
+    navigateToInput                      : navigateToInput                      ,
+    enablePhoneHelpForInput              : enablePhoneHelpForInput              ,
+    isPhoneEntryHelpDisplayedForInput    : isPhoneEntryHelpDisplayedForInput    , 
   }
 })();
