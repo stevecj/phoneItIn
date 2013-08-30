@@ -4,13 +4,13 @@ PhoneItInUIDriver.prototype = (function(document, UI){
   var my = {};
 
   var mentalModel = {};
-  var fixtureEl, inputs, ui;
+  var fixtureEl, inputs, currentInputNum, priorInputNum, ui;
 
   function teardown(){
     if(fixtureEl){
       document.body.removeChild(fixtureEl);
     }
-    fixture = null;
+    fixtureEl = null;
   }
   my.teardown = teardown;
 
@@ -51,15 +51,23 @@ PhoneItInUIDriver.prototype = (function(document, UI){
     getInputByNum(inputNum).value = unformatted;
 
     var inputMM = mentalModel.inputs[inputNum - 1];
-    inputMM.value        = unformatted;
-    inputMM.formattedVal = formatted;
+    inputMM.value        = unformatted ;
+    inputMM.formattedVal = formatted   ;
   }
   my.putUnformattedPhoneNumValueIntoInput = putUnformattedPhoneNumValueIntoInput;
 
   function navigateToInput(inputNum){
+    priorInputNum = currentInputNum;
     getInputByNum(inputNum).focus();
+    currentInputNum = inputNum;
   }
   my.navigateToInput = navigateToInput;
+
+  function navigateFromInput(){
+    var toInputNum = (currentInputNum % inputs.length) + 1;
+    navigateToInput(toInputNum);
+  }
+  my.navigateFromInput = navigateFromInput;
 
   function enablePhoneHelpForInput(inputNum){
     var input = getInputByNum(inputNum)
@@ -67,7 +75,20 @@ PhoneItInUIDriver.prototype = (function(document, UI){
   }
   my.enablePhoneHelpForInput = enablePhoneHelpForInput;
 
-  function isPhoneEntryHelpDisplayedForInput(inputNum){
+  function enterUnformattedPhoneNumber(){
+    var unformatted = '3212345678', formatted = '(321) 234-5678'
+
+    getInputByNum(currentInputNum).value = unformatted;
+
+    mmInput = mentalModel.inputs[currentInputNum -1];
+    mmInput.value = unformatted;
+    mmInput.formattedVal = formatted;
+  }
+  my.enterUnformattedPhoneNumber = enterUnformattedPhoneNumber;
+
+  function assertPhoneEntryHelpDisplayedForInput(inputNum){
+    if(! inputNum){ inputNum = currentInputNum; }
+
     helpEl = document.getElementById('phin-help');
     if(! helpEl){
       throw "Phone help element not found";
@@ -83,7 +104,28 @@ PhoneItInUIDriver.prototype = (function(document, UI){
     }
     return true;
   }
-  my.isPhoneEntryHelpDisplayedForInput = isPhoneEntryHelpDisplayedForInput;
+  my.assertPhoneEntryHelpDisplayedForInput = assertPhoneEntryHelpDisplayedForInput;
+
+  function assertNoPhoneEntryShownForPriorInput(){
+    inputEl = getInputByNum(priorInputNum);
+    potentialHelpEl = inputEl.nextSibling;
+    if( potentialHelpEl && potentialHelpEl.getAttribute('id') === 'phin-help' ){
+      throw "Expected input not to have formatted phone entry help, but does have it.";
+    }
+  }
+  my.assertNoPhoneEntryShownForPriorInput = assertNoPhoneEntryShownForPriorInput;
+
+  function assertFormattedValueInInput(inputNum){
+    mmInput = mentalModel.inputs[inputNum - 1];
+    mmInput.value = mmInput.formattedVal;
+
+    currentValue = getInputByNum(inputNum).value;
+
+    if(! (currentValue === mmInput.value) ){
+      throw 'Expected current input value to be "' + mmInput.value + '", but was "' + currentValue + '".';
+    }
+  }
+  my.assertFormattedValueInInput = assertFormattedValueInInput;
 
   return my;
 })(document, PhoneItIn.UI);

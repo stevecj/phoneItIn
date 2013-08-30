@@ -43,8 +43,19 @@ PhoneItIn.UI = (function(){
     input.parentNode.insertBefore(helpEl, input.nextChild);
   };
 
+  function removeHelp(){
+    helpEl = document.getElementById('phin-help');
+    if( helpEl ){ helpEl.parentNode.removeChild(helpEl); }
+  }
+
+  function formatValueOfInput(input){
+    input.value = formatter.format(input.value);
+  }
+
   function bindToInput(input){
-    input.addEventListener( 'focus', function(){ addHelpToInput(input); } );
+    input.addEventListener( 'focus', function(){ addHelpToInput(input);     } );
+    input.addEventListener( 'blur' , function(){ formatValueOfInput(input); } );
+    input.addEventListener( 'blur' , function(){ removeHelp(); } );
   }
   UI.prototype.bindToInput = bindToInput;
 
