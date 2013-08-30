@@ -1,6 +1,8 @@
 function PhoneItInUIDriver(){
 }
-PhoneItInUIDriver.prototype = (function(){
+PhoneItInUIDriver.prototype = (function(document, UI){
+  var my = {};
+
   var mentalModel = {};
   var fixtureEl, inputs, ui;
 
@@ -10,10 +12,10 @@ PhoneItInUIDriver.prototype = (function(){
     }
     fixture = null;
   }
+  my.teardown = teardown;
 
   function getUi(){
-    if(! ui){ ui = new PhoneItIn.UI(); }
-    return ui;
+    return ui = ui || new UI();
   }
 
   function getFixtureEl(){
@@ -37,6 +39,7 @@ PhoneItInUIDriver.prototype = (function(){
       {value: undefined, formattedVal: undefined}
     ];
   }
+  my.createInputs = createInputs;
 
   function getInputByNum(inputNum){
     return inputs[inputNum - 1];
@@ -51,15 +54,18 @@ PhoneItInUIDriver.prototype = (function(){
     inputMM.value        = unformatted;
     inputMM.formattedVal = formatted;
   }
+  my.putUnformattedPhoneNumValueIntoInput = putUnformattedPhoneNumValueIntoInput;
 
   function navigateToInput(inputNum){
     getInputByNum(inputNum).focus();
   }
+  my.navigateToInput = navigateToInput;
 
   function enablePhoneHelpForInput(inputNum){
     var input = getInputByNum(inputNum)
     getUi().bindToInput(input);
   }
+  my.enablePhoneHelpForInput = enablePhoneHelpForInput;
 
   function isPhoneEntryHelpDisplayedForInput(inputNum){
     helpEl = document.getElementById('phin-help');
@@ -77,14 +83,7 @@ PhoneItInUIDriver.prototype = (function(){
     }
     return true;
   }
+  my.isPhoneEntryHelpDisplayedForInput = isPhoneEntryHelpDisplayedForInput;
 
-  return {
-    teardown                             : teardown                             ,
-    createInputs                         : createInputs                         ,
-    putUnformattedPhoneNumValueIntoInput : putUnformattedPhoneNumValueIntoInput ,
-    enablePhoneHelpForInput              : enablePhoneHelpForInput              ,
-    navigateToInput                      : navigateToInput                      ,
-    enablePhoneHelpForInput              : enablePhoneHelpForInput              ,
-    isPhoneEntryHelpDisplayedForInput    : isPhoneEntryHelpDisplayedForInput    , 
-  }
-})();
+  return my;
+})(document, PhoneItIn.UI);

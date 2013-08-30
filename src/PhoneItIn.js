@@ -1,39 +1,35 @@
-var PhoneItIn = (function(){
-  var Formatters = {
-    NANP : (function(){
-      function format(value){
-        return value.replace( /^(...)(...)(....)$/, '($1) $2-$3' );
-      }
+var PhoneItIn = PhoneItIn || {};
 
-      return {
-        format : format
-      }
-    })()
-  };
+PhoneItIn.Formatters = PhoneItIn.Formatters || {};
 
-  var formatter = Formatters.NANP;
+PhoneItIn.Formatters.NANP = (function(){
+  var my = {};
 
-  function UI(){
+  function format(value){
+    return value.replace( /^(...)(...)(....)$/, '($1) $2-$3' );
   }
-  UI.prototype = (function(){
-    function addHelpToInput(input){
-      var helpEl = document.createElement('DIV');
-      helpEl.setAttribute('id', 'phin-help');
-      helpEl.innerHTML = formatter.format(input.value);
-      input.parentNode.insertBefore(helpEl, input.nextChild);
-    };
+  my.format = format;
 
-    function bindToInput(input){
-      input.addEventListener( 'focus', function(){ addHelpToInput(input); } );
-    }
+  return my;
+})();
 
-    return {
-      bindToInput : bindToInput
-    }
-  })();
+PhoneItIn.UI = (function(){
+  var formatter = PhoneItIn.Formatters.NANP;
 
-  return {
-    Formatters : Formatters ,
-    UI         : UI
+  function UI(){ }
+  UI.prototype = {};
+
+  function addHelpToInput(input){
+    var helpEl = document.createElement('DIV');
+    helpEl.setAttribute('id', 'phin-help');
+    helpEl.innerHTML = formatter.format(input.value);
+    input.parentNode.insertBefore(helpEl, input.nextChild);
   };
+
+  function bindToInput(input){
+    input.addEventListener( 'focus', function(){ addHelpToInput(input); } );
+  }
+  UI.prototype.bindToInput = bindToInput;
+
+  return UI;
 })();
