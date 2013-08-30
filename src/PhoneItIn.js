@@ -5,8 +5,25 @@ PhoneItIn.Formatters = PhoneItIn.Formatters || {};
 PhoneItIn.Formatters.NANP = (function(){
   var my = {};
 
+  function digitizeAlpha(value){
+    return value.
+      replace(/[a-c]/ig, '2').
+      replace(/[d-f]/ig, '3').
+      replace(/[g-i]/ig, '4').
+      replace(/[j-l]/ig, '5').
+      replace(/[m-o]/ig, '6').
+      replace(/[p-s]/ig, '7').
+      replace(/[t-v]/ig, '8').
+      replace(/[w-z]/ig, '9');
+  }
+  my.digitizeAlpha = digitizeAlpha;
+
   function format(value){
-    return value.replace( /^(...)(...)(....)$/, '($1) $2-$3' );
+    var formatted = value.replace(/\s/g, '');
+    if( formatted.length === 0 ){ return formatted; }
+    formatted = digitizeAlpha(formatted);
+    if(! formatted.match(/^[(]?(\d\d\d)[)]?(\d\d\d)-?(\d\d\d\d)$/) ){ return value; }
+    return formatted.replace( /^[(]?(\d\d\d)[)]?(\d\d\d)-?(\d\d\d\d)$/, '($1) $2-$3' );
   }
   my.format = format;
 
