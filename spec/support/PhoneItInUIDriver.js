@@ -128,4 +128,4 @@ PhoneItInUIDriver.prototype = (function(document, UI){
   my.assertFormattedValueInInput = assertFormattedValueInInput;
 
   return my;
-})(document, PhoneItIn.UI);
+})(document, phoneItIn.UI);

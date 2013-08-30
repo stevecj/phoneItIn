@@ -2,7 +2,7 @@
 // as a regular Jasmine spec. Each "step" is represented by a
 // level of nesting.
 
-describe('PhoneItIn', function(){
+describe('phoneItIn', function(){
   var specDriver;
 
   beforeEach(function(){

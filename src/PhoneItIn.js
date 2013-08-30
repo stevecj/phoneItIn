@@ -1,8 +1,8 @@
-var PhoneItIn = PhoneItIn || {};
+var phoneItIn = phoneItIn || {};
 
-PhoneItIn.Formatters = PhoneItIn.Formatters || {};
+phoneItIn.formatters = phoneItIn.formatters || {};
 
-PhoneItIn.Formatters.NANP = (function(){
+phoneItIn.formatters.nanp = (function(){
   var my = {};
 
   function digitizeAlpha(value){
@@ -30,8 +30,8 @@ PhoneItIn.Formatters.NANP = (function(){
   return my;
 })();
 
-PhoneItIn.UI = (function(){
-  var formatter = PhoneItIn.Formatters.NANP;
+phoneItIn.UI = (function(){
+  var formatter = phoneItIn.formatters.nanp;
 
   function UI(){ }
   UI.prototype = {};
