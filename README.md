@@ -2,19 +2,19 @@ Phone It In
 ===========
 **A phone number entry helper**
 
-Note: This project is in its inception phase and does not yet do
-anything.
+Note: This project is in its initial development phase and is not
+yet ready for use in production.
 
-Phone It In is a very simple  North American phone number data
+Phone It In is a very simple North American phone number data
 entry helper for HTML forms written in JavaScript. The idea is
 to provide useful assistance without getting in the way and
 without any kind of excessive cleverness that will be likely to
 break in new or untested browsers.
 
 Many other phone number data entry helpers act as in-place
-templates, enforcing format with every character typed and auto-
-matically filling in parentheses and dashes. It is very hard to
-implement this reliably, and at the same time, it can break
+templates, enforcing format with every character typed and
+automatically filling in parentheses and dashes. It is very hard
+to implement this reliably, and at the same time, it can break
 users' expectations of what they should be able to do with an
 input on a form, such as paste in a value.
 
