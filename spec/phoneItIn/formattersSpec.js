@@ -75,7 +75,6 @@ describe( 'phoneItIn.formatters', function () {
 
         example( 'a-c' , '2' , 'ab(c)#ABC-1'   , '22(2)#222-1'   );
         example( 'd-f' , '3' , 'de(f)#DEF-1'   , '33(3)#333-1'   );
-        example( 'd-f' , '3' , 'de(f)#DEF-1'   , '33(3)#333-1'   );
         example( 'g-i' , '4' , 'gh(i)#GHI-1'   , '44(4)#444-1'   );
         example( 'j-l' , '5' , 'jk(l)#JKL-1'   , '55(5)#555-1'   );
         example( 'm-o' , '6' , 'mn(o)#MNO-1'   , '66(6)#666-1'   );
