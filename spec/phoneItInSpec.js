@@ -6,7 +6,7 @@ describe( 'phoneItIn', function() {
   var specDriver;
 
   beforeEach(function () {
-    specDriver = new PhoneItInUIDriver();
+    specDriver = new phoneItInDrivers.Browser();
   });
 
   afterEach(function () {
