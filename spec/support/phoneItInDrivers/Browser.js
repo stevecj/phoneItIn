@@ -1,10 +1,10 @@
 var phoneItInDrivers = phoneItInDrivers || {};
+phoneItInDrivers.browser = {};
 
-phoneItInDrivers.Browser = (function ( document, UI ) {
+phoneItInDrivers.Browser = (function ( browser, document, UI ) {
   function Browser() {
-    var fixtureEl, inputs, currentInputNum, priorInputNum, ui,
-        my          = {} ,
-        mentalModel = {} ;
+    var fixtureEl, inputs, currentInput, priorInput, ui,
+        my = {};
 
     function teardown() {
       if ( fixtureEl ) {
@@ -27,17 +27,9 @@ phoneItInDrivers.Browser = (function ( document, UI ) {
     }
 
     function createInputs() {
-      var vitro = document.createElement('DIV')
-
-      vitro.innerHTML =
-        "<input type='text' />" +
-        "<input type='text' />";
-      inputs = [ vitro.firstChild, vitro.lastChild ];
-      getFixtureEl().appendChild( inputs[ 0 ] );
-      getFixtureEl().appendChild( inputs[ 1 ] );
-      mentalModel.inputs = [
-        { value: undefined, formattedVal: undefined } ,
-        { value: undefined, formattedVal: undefined }
+      inputs = [
+        new browser.Input( getFixtureEl(), 1 ) ,
+        new browser.Input( getFixtureEl(), 2 )
       ];
     }
     this.createInputs = createInputs;
@@ -46,90 +38,147 @@ phoneItInDrivers.Browser = (function ( document, UI ) {
       return inputs[ inputNum - 1 ];
     }
 
+    function findPhoneHelpElement() {
+      return document.getElementById('phin-help');
+    }
+
     function putUnformattedPhoneNumValueIntoInput( inputNum ) {
-      var unformatted = '5313456789'     ,
-          formatted   = '(531) 345-6789' ;
-
-      getInputByNum( inputNum ).value = unformatted;
-
-      var inputMM = mentalModel.inputs[ inputNum - 1 ];
-      inputMM.value        = unformatted ;
-      inputMM.formattedVal = formatted   ;
+      var input = getInputByNum( inputNum );
+      input.enterValue( '5313456789', '(531) 345-6789' );
     }
     this.putUnformattedPhoneNumValueIntoInput = putUnformattedPhoneNumValueIntoInput;
 
+    function enterUnformattedPhoneNumber() {
+      currentInput.enterValue( '3212345678', '(321) 234-5678' );
+    }
+    this.enterUnformattedPhoneNumber = enterUnformattedPhoneNumber;
+
     function navigateToInput( inputNum ) {
-      priorInputNum = currentInputNum;
-      getInputByNum( inputNum ).focus();
-      currentInputNum = inputNum;
+      var input = getInputByNum( inputNum );
+
+      input.focus();
+      priorInput = currentInput;
+      currentInput = input;
     }
     this.navigateToInput = navigateToInput;
 
     function navigateFromInput() {
-      var toInputNum = ( currentInputNum % inputs.length ) + 1;
+      var toInputNum = ( currentInput.getInputNum() % inputs.length ) + 1;
       navigateToInput( toInputNum );
     }
     this.navigateFromInput = navigateFromInput;
 
     function enablePhoneHelpForInput( inputNum ) {
       var input = getInputByNum( inputNum );
-      getUi().bindToInput( input );
+      getUi().bindToInput( input.getElement() );
     }
     this.enablePhoneHelpForInput = enablePhoneHelpForInput;
 
-    function enterUnformattedPhoneNumber() {
-      var unformatted = '3212345678'     ,
-          formatted   = '(321) 234-5678' ;
-
-      getInputByNum( currentInputNum ).value = unformatted;
-
-      mmInput = mentalModel.inputs[ currentInputNum -1 ];
-      mmInput.value        = unformatted ;
-      mmInput.formattedVal = formatted   ;
-    }
-    this.enterUnformattedPhoneNumber = enterUnformattedPhoneNumber;
-
     function assertPhoneEntryHelpDisplayedForInput( inputNum ) {
-      if ( ! inputNum ) { inputNum = currentInputNum; }
+      var contentMismatch,
+          input = inputNum ? getInputByNum( inputNum ) : currentInput,
+          helpEl = findPhoneHelpElement();
 
-      helpEl = document.getElementById('phin-help');
       if ( ! helpEl ) {
         throw "Phone help element not found";
       }
-      var input = getInputByNum( inputNum );
-      if ( ! helpEl.previousSibling == input ) {
+      if( ! input.hasAsNextSiblingElement( helpEl ) ) {
         throw "Phone help element not next sibling of input";
       }
-      var formattedValue = mentalModel.inputs[ inputNum - 1 ].formattedVal ;
-      var helpContent = helpEl.innerHTML;
-      if ( helpContent.indexOf( formattedValue ) < 0 ){
-        throw 'Phone help expected to contain "' + formattedValue + '", but was "' + helpContent + '".';
+      contentMismatch = input.actualExpectedHelpContentMismatch( helpEl );
+      if ( contentMismatch ){
+        throw 'Phone help expected to contain "' + contentMismatch.expectedToContain + '", ' +
+              'but was "' + contentMismatch.actual + '".';
       }
-      return true;
     }
     this.assertPhoneEntryHelpDisplayedForInput = assertPhoneEntryHelpDisplayedForInput;
 
     function assertNoPhoneEntryShownForPriorInput() {
-      inputEl = getInputByNum( priorInputNum );
-      potentialHelpEl = inputEl.nextSibling;
-      if ( potentialHelpEl && potentialHelpEl.getAttribute('id') === 'phin-help' ) {
-        throw "Expected input not to have formatted phone entry help, but does have it.";
+      var helpEl = findPhoneHelpElement();
+
+      if( helpEl && priorInput.hasAsNextSiblingElement( helpEl ) ) {
+        throw "Expected formatted phone entry help not to be shown for input, but it was shown";
       }
     }
     this.assertNoPhoneEntryShownForPriorInput = assertNoPhoneEntryShownForPriorInput;
 
     function assertFormattedValueInInput( inputNum ) {
-      mmInput = mentalModel.inputs[ inputNum - 1 ];
-      mmInput.value = mmInput.formattedVal;
+      var mismatch,
+          input = getInputByNum( inputNum );
 
-      currentValue = getInputByNum( inputNum ).value;
+      input.expectValueWasFormatted();
 
-      if ( ! ( currentValue === mmInput.value ) ) {
-        throw 'Expected current input value to be "' + mmInput.value + '", but was "' + currentValue + '".';
+      mismatch = input.actualExpectedValueMismatch();
+      if ( mismatch ) {
+        throw 'Expected current input value to be "' + mismatch.expected + '", ' +
+              'but was "' + mismatch.actual + '".';
       }
     }
     this.assertFormattedValueInInput = assertFormattedValueInInput;
   }
 
   return Browser
-})( document, phoneItIn.UI );
+})( phoneItInDrivers.browser, document, phoneItIn.UI );
+
+phoneItInDrivers.browser.Input = (function ( document ) {
+  function Input( parentEl, inputNum ) {
+    var mentalModel,
+        element = document.createElement('INPUT');
+
+    element.setAttribute( 'type', 'text' );
+    parentEl.appendChild( element );
+
+    mentalModel = {
+      value          : '' ,
+      formattedValue : ''
+    };
+
+    function getInputNum() { return inputNum; }
+    this.getInputNum = getInputNum;
+
+    function getElement() { return element; }
+    this.getElement = getElement;
+
+    function hasAsNextSiblingElement(candidateEl) {
+      return element.nextSibling == candidateEl;
+    }
+    this.hasAsNextSiblingElement = hasAsNextSiblingElement;
+
+    function getMentalModel() { return mentalModel; }
+    this.getMentalModel = getMentalModel;
+
+    function enterValue( value, formattedValue ) {
+      element.value = value;
+      mentalModel.value = value;
+      mentalModel.formattedValue = formattedValue;
+    }
+    this.enterValue = enterValue;
+
+    function focus() {
+      element.focus();
+    }
+    this.focus = focus;
+
+    function expectValueWasFormatted() {
+      mentalModel.value = mentalModel.formattedValue;
+    }
+    this.expectValueWasFormatted = expectValueWasFormatted;
+
+    function actualExpectedValueMismatch() {
+      return element.value === mentalModel.value ?
+        null :
+        { actual: element.value, expected: mentalModel.value };
+    }
+    this.actualExpectedValueMismatch = actualExpectedValueMismatch;
+
+    function actualExpectedHelpContentMismatch( helpEl ) {
+      helpContent = helpEl.innerHTML;
+      return helpContent.indexOf( mentalModel.formattedValue ) >= 0 ?
+        null :
+        { actual: helpContent, expectedToContain: mentalModel.formattedValue };
+    }
+    this.actualExpectedHelpContentMismatch = actualExpectedHelpContentMismatch;
+  }
+
+  return Input;
+})( document );
