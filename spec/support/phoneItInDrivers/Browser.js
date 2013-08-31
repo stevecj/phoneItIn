@@ -3,8 +3,7 @@ phoneItInDrivers.browser = {};
 
 phoneItInDrivers.Browser = (function ( browser, document, UI ) {
   function Browser() {
-    var fixtureEl, inputs, currentInput, priorInput, ui,
-        my = {};
+    var fixtureEl, inputs, currentInput, priorInput, ui;
 
     function teardown() {
       if ( fixtureEl ) {
@@ -15,7 +14,8 @@ phoneItInDrivers.Browser = (function ( browser, document, UI ) {
     this.teardown = teardown;
 
     function getUi() {
-      return ui = ui || new UI();
+      ui = ui || new UI();
+      return ui;
     }
 
     function getFixtureEl() {
@@ -117,7 +117,7 @@ phoneItInDrivers.Browser = (function ( browser, document, UI ) {
     this.assertFormattedValueInInput = assertFormattedValueInInput;
   }
 
-  return Browser
+  return Browser;
 })( phoneItInDrivers.browser, document, phoneItIn.UI );
 
 phoneItInDrivers.browser.Input = (function ( document ) {
@@ -139,8 +139,8 @@ phoneItInDrivers.browser.Input = (function ( document ) {
     function getElement() { return element; }
     this.getElement = getElement;
 
-    function hasAsNextSiblingElement(candidateEl) {
-      return element.nextSibling == candidateEl;
+    function hasAsNextSiblingElement( candidateEl ) {
+      return element.nextSibling === candidateEl;
     }
     this.hasAsNextSiblingElement = hasAsNextSiblingElement;
 
@@ -172,7 +172,7 @@ phoneItInDrivers.browser.Input = (function ( document ) {
     this.actualExpectedValueMismatch = actualExpectedValueMismatch;
 
     function actualExpectedHelpContentMismatch( helpEl ) {
-      helpContent = helpEl.innerHTML;
+      var helpContent = helpEl.innerHTML;
       return helpContent.indexOf( mentalModel.formattedValue ) >= 0 ?
         null :
         { actual: helpContent, expectedToContain: mentalModel.formattedValue };

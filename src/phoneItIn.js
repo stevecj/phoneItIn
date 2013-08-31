@@ -7,30 +7,31 @@ phoneItIn.formatters.nanp = (function () {
 
   function digitizeAlpha( value ) {
     return value
-      .replace( /[a-c]/ig, '2' )
-      .replace( /[d-f]/ig, '3' )
-      .replace( /[g-i]/ig, '4' )
-      .replace( /[j-l]/ig, '5' )
-      .replace( /[m-o]/ig, '6' )
-      .replace( /[p-s]/ig, '7' )
-      .replace( /[t-v]/ig, '8' )
-      .replace( /[w-z]/ig, '9' );
+      .replace( /[a-c]/ig , '2' )
+      .replace( /[d-f]/ig , '3' )
+      .replace( /[g-i]/ig , '4' )
+      .replace( /[j-l]/ig , '5' )
+      .replace( /[m-o]/ig , '6' )
+      .replace( /[p-s]/ig , '7' )
+      .replace( /[t-v]/ig , '8' )
+      .replace( /[w-z]/ig , '9' );
   }
   my.digitizeAlpha = digitizeAlpha;
 
   function format( value ) {
-    var formatted = value.replace( /\s/g, '' );
+    var FORMAT_PATTERN = /^[(]?(\d\d\d)[)]?(\d\d\d)-?(\d\d\d\d)$/,
+        formatted = value.replace( /\s/g, '' );
 
-    if ( formatted.length === 0 ){
+    if ( formatted.length === 0 ) {
       return formatted;
     }
 
     formatted = digitizeAlpha( formatted );
-    if ( ! formatted.match( /^[(]?(\d\d\d)[)]?(\d\d\d)-?(\d\d\d\d)$/ ) ) {
+    if ( ! formatted.match( FORMAT_PATTERN ) ) {
       return value;
     }
 
-    return formatted.replace( /^[(]?(\d\d\d)[)]?(\d\d\d)-?(\d\d\d\d)$/, '($1) $2-$3' );
+    return formatted.replace( FORMAT_PATTERN, '($1) $2-$3' );
   }
   my.format = format;
 
@@ -48,14 +49,14 @@ phoneItIn.UI = (function () {
     helpEl.setAttribute( 'id', 'phin-help' );
     helpEl.innerHTML = formatter.format( input.value );
     input.parentNode.insertBefore( helpEl, input.nextChild );
-  };
+  }
 
   function removeHelp() {
-    helpEl = document.getElementById('phin-help');
+    var helpEl = document.getElementById('phin-help');
     if( helpEl ){ helpEl.parentNode.removeChild( helpEl ); }
   }
 
-  function formatValueOfInput( input ){
+  function formatValueOfInput( input ) {
     input.value = formatter.format( input.value );
   }
 

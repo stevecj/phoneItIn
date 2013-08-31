@@ -5,7 +5,7 @@ describe( 'phoneItIn.formatters', function () {
     formatters = phoneItIn.formatters;
   });
 
-  describe( 'nanp (North American Numbering Plan)', function () {
+  describe( '.nanp (North American Numbering Plan)', function () {
     var nanp;
 
     beforeEach(function () {
