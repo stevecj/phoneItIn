@@ -53,6 +53,11 @@ phoneItInDrivers.Browser = (function ( browser, document, UI ) {
     }
     this.enterUnformattedPhoneNumber = enterUnformattedPhoneNumber;
 
+    function enterPartialUnformattedPhoneNumber() {
+      currentInput.enterValue( '87632', '(876) 32_-____' );
+    }
+    this.enterPartialUnformattedPhoneNumber = enterPartialUnformattedPhoneNumber;
+
     function navigateToInput( inputNum ) {
       var input = getInputByNum( inputNum );
 
@@ -149,6 +154,7 @@ phoneItInDrivers.browser.Input = (function ( document ) {
 
     function enterValue( value, formattedValue ) {
       element.value = value;
+      element.dispatchEvent( new Event('input') );
       mentalModel.value = value;
       mentalModel.formattedValue = formattedValue;
     }

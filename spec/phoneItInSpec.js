@@ -64,6 +64,16 @@ describe( 'phoneItIn', function() {
             });
           });
         });
+
+        describe( "when the user enters a partial unformatted phone number", function () {
+          beforeEach(function () {
+            specDriver.enterPartialUnformattedPhoneNumber();
+          });
+
+          it( "displays formatted phone number entry help for the partial value", function () {
+            specDriver.assertPhoneEntryHelpDisplayedForInput();
+          });
+        });
       })
     });
   });

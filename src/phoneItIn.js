@@ -35,6 +35,18 @@ phoneItIn.formatters.nanp = (function () {
   }
   my.format = format;
 
+  function active( value ) {
+    var FORMAT_PATTERN = /^[(]?(...)[)]?(...)-?(....)(.*)$/,
+        digits = value.replace( /\s/g, '' ).replace( FORMAT_PATTERN, '$1$2$3$4' );
+
+    digits = digitizeAlpha(digits);
+    if( digits.length < 10 ) {
+      digits = (digits + '__________').substr( 0, 10 );
+    }
+    return digits.replace( FORMAT_PATTERN, '($1) $2-$3 $4' ).replace( / $/, '' );
+  }
+  my.active = active;
+
   return my;
 })();
 
@@ -47,8 +59,13 @@ phoneItIn.UI = (function () {
   function addHelpToInput( input ) {
     var helpEl = document.createElement('DIV');
     helpEl.setAttribute( 'id', 'phin-help' );
-    helpEl.innerHTML = formatter.format( input.value );
     input.parentNode.insertBefore( helpEl, input.nextChild );
+    updateHelpForInput( input );
+  }
+
+  function updateHelpForInput( input ) {
+    var helpEl = document.getElementById('phin-help');
+    helpEl.innerHTML = formatter.active( input.value );
   }
 
   function removeHelp() {
@@ -61,9 +78,10 @@ phoneItIn.UI = (function () {
   }
 
   function bindToInput( input ){
-    input.addEventListener( 'focus', function(){ addHelpToInput( input );     } );
-    input.addEventListener( 'blur' , function(){ formatValueOfInput( input ); } );
-    input.addEventListener( 'blur' , function(){ removeHelp();                } );
+    input.addEventListener( 'focus' , function(){ addHelpToInput( input );     } );
+    input.addEventListener( 'blur'  , function(){ formatValueOfInput( input ); } );
+    input.addEventListener( 'blur'  , function(){ removeHelp();                } );
+    input.addEventListener( 'input' , function(){ updateHelpForInput( input ); } );
   }
   UI.prototype.bindToInput = bindToInput;
 

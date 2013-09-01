@@ -42,7 +42,7 @@ describe( 'phoneItIn.formatters', function () {
       });
 
       it( "returns the given input when invalid characters are present", function () {
-        expect( nanp.format( '555*6781234' ) ).toEqual( '555*6781234' );
+        expect( nanp.format( '55~56781234' ) ).toEqual( '55~56781234' );
         expect( nanp.format( '555*781234'  ) ).toEqual( '555*781234'  );
       });
 
@@ -54,6 +54,54 @@ describe( 'phoneItIn.formatters', function () {
       it( "returns the given input when valid, but misplaced characters are present", function () {
         expect( nanp.format( '5(556781234' ) ).toEqual( '5(556781234' );
         expect( nanp.format( '555-6781234' ) ).toEqual( '555-6781234' );
+      });
+    });
+
+    describe( "active", function () {
+      it( "returns an empty template for a blank string", function () {
+        var expected = '(___) ___-____';
+
+        expect( nanp.active( ''    ) ).toEqual( expected );
+        expect( nanp.active( ' '   ) ).toEqual( expected );
+        expect( nanp.active( '\t ' ) ).toEqual( expected );
+      });
+
+      it( "returns a formatted phone number for a 10-digit phone # string", function () {
+        expect( nanp.active('2349876543') ).toEqual('(234) 987-6543');
+      });
+
+      it( "returns a formatted phone number for a formatted phone number", function () {
+        expect( nanp.active('(345) 765-4321') ).toEqual('(345) 765-4321');
+      });
+
+      it( "returns a formatted phone number with digits for letters", function () {
+        expect( nanp.active('(34K) s65-43a1') ).toEqual('(345) 765-4321');
+      });
+
+      it( "returns a formatted phone number for a partially formatted phone number", function () {
+        expect( nanp.active( '(345)7654321' ) ).toEqual( '(345) 765-4321' );
+        expect( nanp.active( '234 987-6543' ) ).toEqual( '(234) 987-6543' );
+      });
+
+      it( "ignores spurious whitespace & omits from formatted result", function () {
+        expect( nanp.active( '2 349876543\t'       ) ).toEqual( '(234) 987-6543' );
+        expect( nanp.active( ' (345)  7 65-4321  ' ) ).toEqual( '(345) 765-4321' );
+      });
+
+      it( "returns the 'formatted' value even if invalid characters are present", function () {
+        expect( nanp.active( '555*678123' ) ).toEqual( '(555) *67-8123' );
+        expect( nanp.active( '5557812~34' ) ).toEqual( '(555) 781-2~34' );
+      });
+
+      it( "returns a partially filled template when too few digits are present", function () {
+        expect( nanp.active( '5'         ) ).toEqual( '(5__) ___-____' );
+        expect( nanp.active( '54'        ) ).toEqual( '(54_) ___-____' );
+        expect( nanp.active( '543876'    ) ).toEqual( '(543) 876-____' );
+        expect( nanp.active( '543876543' ) ).toEqual( '(543) 876-543_' );
+      });
+      it( "returns a formatted value followed by a space, then extra digits for too many digits", function () {
+        expect( nanp.active( '56767812345'   ) ).toEqual( '(567) 678-1234 5'   );
+        expect( nanp.active( '5676781234567' ) ).toEqual( '(567) 678-1234 567' );
       });
     });
 

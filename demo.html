@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  </head>
+  <body>
+    <label for='name'>Name</label><input id='name' type='text' /><br />
+    <label for='phone'>Phone</label><input id='phone' type='tel' /><br />
+
+    <script type="text/javascript" src="src/phoneItIn.js"></script>
+    <script>
+      var phoneItInUI = new phoneItIn.UI();
+      phoneItInUI.bindToInput( document.getElementById('phone') );
+    </script>
+  </body>
+</html>
