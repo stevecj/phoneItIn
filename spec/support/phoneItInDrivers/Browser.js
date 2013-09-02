@@ -178,10 +178,12 @@ phoneItInDrivers.browser.Input = (function ( document ) {
     this.actualExpectedValueMismatch = actualExpectedValueMismatch;
 
     function actualExpectedHelpContentMismatch( helpEl ) {
-      var helpContent = helpEl.innerHTML;
-      return helpContent.indexOf( mentalModel.formattedValue ) >= 0 ?
+      var helpContent = helpEl.textContent,
+          expectedValue = mentalModel.formattedValue;
+
+      return helpContent === expectedValue ?
         null :
-        { actual: helpContent, expectedToContain: mentalModel.formattedValue };
+        { actual: helpContent, expectedToContain: expectedValue };
     }
     this.actualExpectedHelpContentMismatch = actualExpectedHelpContentMismatch;
   }

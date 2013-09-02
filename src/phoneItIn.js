@@ -59,13 +59,18 @@ phoneItIn.UI = (function () {
   function addHelpToInput( input ) {
     var helpEl = document.createElement('DIV');
     helpEl.setAttribute( 'id', 'phin-help' );
-    input.parentNode.insertBefore( helpEl, input.nextChild );
+    helpEl.setAttribute('style',
+      "position:absolute; " +
+      "top:" + (input.offsetTop + input.offsetHeight) + "px; " +
+      "left:" + input.offsetLeft + "px;");
+    helpEl.innerHTML = "<div id='phin-help-inner'></div>";
+    input.parentNode.insertBefore( helpEl, input.nextSibling );
     updateHelpForInput( input );
   }
 
   function updateHelpForInput( input ) {
-    var helpEl = document.getElementById('phin-help');
-    helpEl.innerHTML = formatter.active( input.value );
+    var helpInnerEl = document.getElementById('phin-help-inner');
+    helpInnerEl.innerHTML = formatter.active( input.value );
   }
 
   function removeHelp() {
