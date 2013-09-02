@@ -99,6 +99,14 @@ describe( 'phoneItIn.formatters', function () {
         expect( nanp.active( '543876'    ) ).toEqual( '(543) 876-____' );
         expect( nanp.active( '543876543' ) ).toEqual( '(543) 876-543_' );
       });
+
+      it( "returns a partially filled template for a partial formatted number", function () {
+        expect( nanp.active( '(5'           ) ).toEqual( '(5__) ___-____' );
+        expect( nanp.active( '(54'          ) ).toEqual( '(54_) ___-____' );
+        expect( nanp.active( '(543)876'     ) ).toEqual( '(543) 876-____' );
+        expect( nanp.active( '543) 876-543' ) ).toEqual( '(543) 876-543_' );
+      });
+
       it( "returns a formatted value followed by a space, then extra digits for too many digits", function () {
         expect( nanp.active( '56767812345'   ) ).toEqual( '(567) 678-1234 5'   );
         expect( nanp.active( '5676781234567' ) ).toEqual( '(567) 678-1234 567' );

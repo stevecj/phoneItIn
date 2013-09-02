@@ -37,11 +37,14 @@ phoneItIn.formatters.nanp = (function () {
 
   function active( value ) {
     var FORMAT_PATTERN = /^[(]?(...)[)]?(...)-?(....)(.*)$/,
-        digits = value.replace( /\s/g, '' ).replace( FORMAT_PATTERN, '$1$2$3$4' );
+        digits = (value + '__________').replace( /\s/g, '' ).replace( FORMAT_PATTERN, '$1$2$3$4' );
 
-    digits = digitizeAlpha(digits);
-    if( digits.length < 10 ) {
-      digits = (digits + '__________').substr( 0, 10 );
+    digits = digits.substring( 0, digits.length );
+    digits = digitizeAlpha( digits );
+    if( digits.length > 20 ) {
+      digits = digits.substr( 0, digits.length - 10 );
+    } else {
+      digits = digits.substr( 0, 10 );
     }
     return digits.replace( FORMAT_PATTERN, '($1) $2-$3 $4' ).replace( / $/, '' );
   }
