@@ -1,8 +1,47 @@
+describe( 'phoneItIn', function () {
+  var fixtureEl, textInput, telInput1, telInput2;
+
+  // This is a bit smelly. Later on, should probably have a DOM
+  // adapter and spy on calls to mock instances of that.
+
+  beforeEach(function () {
+    fixtureEl = document.createElement('DIV');
+    fixtureEl.innerHTML =
+      "<input type='text' /><input type='tel' /><input type='tel' />";
+
+    document.body.appendChild( fixtureEl );
+
+    textInput = fixtureEl.firstChild;
+    telInput1 = textInput.nextSibling;
+    telInput2 = fixtureEl.lastChild;
+
+    spyOn( textInput, 'addEventListener' );
+    spyOn( telInput1, 'addEventListener' );
+    spyOn( telInput2, 'addEventListener' );
+  });
+
+  afterEach(function () {
+    if( fixtureEl ) { document.body.removeChild( fixtureEl ); }
+    fixtureEl = null;
+  });
+
+  it( "binds a UI instance to all 'tel' inputs on the page", function () {
+    phoneItIn.setupForTelInputs();
+    expect( telInput1.addEventListener ).toHaveBeenCalledWith( 'focus', jasmine.any(Function) );
+    expect( telInput2.addEventListener ).toHaveBeenCalledWith( 'focus', jasmine.any(Function) );
+  });
+
+  it( "does not bind to inputs other than 'tel' type", function () {
+    phoneItIn.setupForTelInputs();
+    expect( textInput.addEventListener ).not.toHaveBeenCalled();
+  });
+});
+
 // This is an approximation of an AAT feature spec constructed
-// as a regular Jasmine spec. Each "step" is represented by a
+// within a regular Jasmine spec. Each "step" is represented by a
 // level of nesting.
 
-describe( 'phoneItIn', function() {
+describe( "phoneItIn features", function () {
   var specDriver;
 
   beforeEach(function () {

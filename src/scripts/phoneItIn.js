@@ -147,3 +147,27 @@ phoneItIn.UI = (function () {
 
   return UI;
 })();
+
+(function () {
+  var ui;
+
+  function getUi() {
+    ui = ui || new phoneItIn.UI();
+    return ui;
+  }
+
+  function setupForTelInputs() {
+    var i, input, type,
+        inputs = document.getElementsByTagName('INPUT'),
+        length = inputs.length;
+
+    for( i = 0; i < length; i++ ) {
+      input = inputs[ i ];
+      type = input.getAttribute( 'type' );
+      if ( type === 'tel' ) {
+        getUi().bindToInput( input );
+      }
+    }
+  }
+  phoneItIn.setupForTelInputs = setupForTelInputs;
+})();
