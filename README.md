@@ -21,5 +21,13 @@ number will look, whether there are any problems, and whether
 entry is complete. Upon leaving the input, the value is re-
 formatted to standard.
 
+![Partial Entry](/readme-images/partial-entry.png)
+
+![Complete Entry](/readme-images/complete-entry.png)
+
+![Entry With Extra Digit](/readme-images/extra-digit.png)
+
+![Entry With Invalid Character](/readme-images/bad-partial-entry.png)
+
 Note that this code currently relies on features only present
 in up-to-date modern browsers.
