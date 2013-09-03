@@ -25,6 +25,8 @@ formatted to standard.
 
 ![Complete Entry](/readme-images/complete-entry.png)
 
+![Pre-formatted w/ Leading Spaces](/readme-images/pre-formatted-leading-spaces.png)
+
 ![Entry With Extra Digit](/readme-images/extra-digit.png)
 
 ![Entry With Invalid Character](/readme-images/bad-partial-entry.png)
