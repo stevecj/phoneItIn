@@ -50,6 +50,22 @@ phoneItIn.formatters.nanp = (function () {
   }
   my.active = active;
 
+  function validityOf( value ) {
+    var activeFormatted, digits;
+
+    if( value.match(/[^-\dA-Za-z()\s]/) ) { return 'invalid'; }
+
+    activeFormatted = active( value );
+    if( activeFormatted.length > '(___) ___-____'.length ) { return 'invalid' }
+
+    digits = activeFormatted.replace( /^[(](...)[)] (...)-(....)$/, "$1$2$3" );
+    if( digits.match(/[^\d_]/) ) { return 'invalid'; }
+    if( activeFormatted.match(/_/) ) { return 'partial'; }
+
+    return 'complete';
+  }
+  my.validityOf = validityOf;
+
   return my;
 })();
 
@@ -72,8 +88,17 @@ phoneItIn.UI = (function () {
   }
 
   function updateHelpForInput( input ) {
-    var helpInnerEl = document.getElementById('phin-help-inner');
+    var validity,
+        helpEl      = document.getElementById( 'phin-help'       ),
+        helpInnerEl = document.getElementById( 'phin-help-inner' );
+
     helpInnerEl.innerHTML = formatter.active( input.value );
+    validity = formatter.validityOf( input.value );
+    switch( validity ) {
+      case 'partial'  : helpEl.className = ''              ; break;
+      case 'invalid'  : helpEl.className = 'phin-invalid'  ; break;
+      case 'complete' : helpEl.className = 'phin-complete' ; break;
+    }
   }
 
   function removeHelp() {

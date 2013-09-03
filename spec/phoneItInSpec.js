@@ -45,9 +45,13 @@ describe( 'phoneItIn', function() {
           specDriver.navigateToInput( 2 );
         });
 
-        describe( "when the user enters an unformatted phone number", function () {
+        describe( "when the user enters a complete unformatted phone number", function () {
           beforeEach(function () {
-            specDriver.enterUnformattedPhoneNumber();
+            specDriver.enterCompleteUnformattedPhoneNumber();
+          });
+
+          it( "indicates that the value is complete", function () {
+            specDriver.assertInputCompletenessIndicated();
           });
 
           describe( "and the focus moves away from the input", function () {
@@ -72,6 +76,14 @@ describe( 'phoneItIn', function() {
 
           it( "displays formatted phone number entry help for the partial value", function () {
             specDriver.assertPhoneEntryHelpDisplayedForInput();
+          });
+
+          it( "does not indicate that the value is complete", function () {
+            specDriver.assertInputCompletenessNotIndicated();
+          });
+
+          it( "does not indicate that the value is invalid", function () {
+            specDriver.assertInputInvalidityNotIndicated();
           });
         });
       })

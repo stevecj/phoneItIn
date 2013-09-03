@@ -48,10 +48,10 @@ phoneItInDrivers.Browser = (function ( browser, document, UI ) {
     }
     this.putUnformattedPhoneNumValueIntoInput = putUnformattedPhoneNumValueIntoInput;
 
-    function enterUnformattedPhoneNumber() {
+    function enterCompleteUnformattedPhoneNumber() {
       currentInput.enterValue( '3212345678', '(321) 234-5678' );
     }
-    this.enterUnformattedPhoneNumber = enterUnformattedPhoneNumber;
+    this.enterCompleteUnformattedPhoneNumber = enterCompleteUnformattedPhoneNumber;
 
     function enterPartialUnformattedPhoneNumber() {
       currentInput.enterValue( '87632', '(876) 32_-____' );
@@ -120,6 +120,31 @@ phoneItInDrivers.Browser = (function ( browser, document, UI ) {
       }
     }
     this.assertFormattedValueInInput = assertFormattedValueInInput;
+
+    function assertInputCompletenessIndicated() {
+      var helpEl = findPhoneHelpElement();
+      if ( ! helpEl.className.match(/\bphin-complete\b/) ) {
+        throw "Expected input completeness to be indicated, but was not indicated."
+      }
+    }
+    this.assertInputCompletenessIndicated = assertInputCompletenessIndicated;
+
+    this.assertInputCompletenessNotIndicated = assertInputCompletenessNotIndicated;
+    function assertInputCompletenessNotIndicated() {
+      var helpEl = findPhoneHelpElement();
+      if ( helpEl.className.match(/\bphin-complete\b/) ) {
+        throw "Expected input completeness not to be indicated, but was indicated."
+      }
+    }
+    this.assertInputCompletenessNotIndicated = assertInputCompletenessNotIndicated;
+
+    function assertInputInvalidityNotIndicated() {
+      var helpEl = findPhoneHelpElement();
+      if ( helpEl.className.match(/\bphin-invalid\b/) ) {
+        throw "Expected input validity not to be indicated, but was indicated."
+      }
+    }
+    this.assertInputInvalidityNotIndicated = assertInputInvalidityNotIndicated;
   }
 
   return Browser;

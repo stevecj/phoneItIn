@@ -113,7 +113,30 @@ describe( 'phoneItIn.formatters', function () {
       });
     });
 
-    describe( "digitizeAlpha", function () {
+    describe( ".validityOf()", function () {
+
+      it( "returns 'partial' for a blank value", function () {
+        expect( nanp.validityOf( ''    ) ).toEqual( 'partial' );
+        expect( nanp.validityOf( '\t ' ) ).toEqual( 'partial' );
+      });
+
+      it( "returns 'partial' for a partial valid value", function () {
+        expect( nanp.validityOf( '543'      ) ).toEqual( 'partial' );
+        expect( nanp.validityOf( '(654)3 M' ) ).toEqual( 'partial' );
+      });
+
+      it( "returns 'invalid' with invalid characters in value", function () {
+        expect( nanp.validityOf( '5*3'     ) ).toEqual( 'invalid' );
+        expect( nanp.validityOf( '(645)3~' ) ).toEqual( 'invalid' );
+      });
+
+      it( "returns 'invalid' with delimiters in invalid positions", function () {
+        expect( nanp.validityOf( '5(03) 234-5678' ) ).toEqual( 'invalid' );
+        expect( nanp.validityOf( '(645)3-2'       ) ).toEqual( 'invalid' );
+      });
+    });
+
+    describe( ".digitizeAlpha()", function () {
       it( "returns the given string having no alphabetic characters", function () {
         expect( nanp.digitizeAlpha('123-456#') ).toEqual('123-456#');
       });
