@@ -1,0 +1,15 @@
+#phin-help {
+  padding: 3px
+}
+
+#phin-help-inner {
+  border: solid 1px #bbb; padding: 0.125em 0.25em; color: #666;
+}
+
+.phin-invalid #phin-help-inner {
+  background-color: #fbb; color: #844;
+}
+
+.phin-complete #phin-help-inner {
+  background-color: #bfb; color: #484;
+}

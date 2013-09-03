@@ -21,9 +21,5 @@ number will look, whether there are any problems, and whether
 entry is complete. Upon leaving the input, the value is re-
 formatted to standard.
 
-Note: This project is in early develpment and has just reached
-the point of starting to be useful in production. It currently
-works only with very modern browsers and it will be much
-firendlier once it can display an indication of when a complete
-phone number has been entered or when invalid or extra characters
-have been entered. These indications are coming very soon.
+Note that this code currently relies on features only present
+in up-to-date modern browsers.

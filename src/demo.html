@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="stylesheet" type="text/css" href="styles/phoneItIn.css">
+  </head>
+  <body>
+    <label for='name'>Name</label><input id='name' type='text' /><br />
+    <label for='phone'>Phone</label><input id='phone' type='tel' /><br />
+
+    <script type="text/javascript" src="scripts/phoneItIn.js"></script>
+    <script>
+      var phoneItInUI = new phoneItIn.UI();
+      phoneItInUI.bindToInput( document.getElementById('phone') );
+    </script>
+  </body>
+</html>
