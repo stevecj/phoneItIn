@@ -17,9 +17,11 @@ input on a form, such as paste in a value.
 
 This helper takes a different approach and opens a helper next
 to the input that dynamically shows what the formatted phone
-number will look, whether there are any problems, and whether
-entry is complete. Upon leaving the input, the value is re-
-formatted to standard.
+number will look like, whether there are any problems, and
+whether entry is complete. Upon leaving the input, the value is
+re-formatted to standard.
+
+[Demo](http://stevecj.github.io/project-demos/phone-it-in/demo.html)
 
 ![Partial Entry](/readme-images/partial-entry.png)
 
