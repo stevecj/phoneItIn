@@ -86,10 +86,10 @@ phoneItIn.UI = (function () {
   function addHelpToInput( input ) {
     var helpEl = document.createElement('DIV');
     helpEl.setAttribute( 'id', 'phin-help' );
-    helpEl.setAttribute('style',
+    helpEl.setAttribute( 'style',
       "position:absolute; " +
       "top:" + (input.offsetTop + input.offsetHeight) + "px; " +
-      "left:" + input.offsetLeft + "px;");
+      "left:" + input.offsetLeft + "px;" );
     helpEl.innerHTML = "<div id='phin-help-inner'></div>";
     input.parentNode.insertBefore( helpEl, input.nextSibling );
     updateHelpForInput( input );
@@ -133,7 +133,7 @@ phoneItIn.UI = (function () {
   return UI;
 })();
 
-(function () {
+(function ( my ) {
   var ui;
 
   function getUi() {
@@ -154,5 +154,5 @@ phoneItIn.UI = (function () {
       }
     }
   }
-  phoneItIn.setupForTelInputs = setupForTelInputs;
-})();
+  my.setupForTelInputs = setupForTelInputs;
+})( phoneItIn );
