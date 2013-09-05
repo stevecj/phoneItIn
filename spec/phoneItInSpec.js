@@ -1,39 +1,43 @@
 describe( 'phoneItIn', function () {
-  var fixtureEl, textInput, telInput1, telInput2;
 
-  // This is a bit smelly. Later on, should probably have a DOM
-  // adapter and spy on calls to mock instances of that.
+  describe( '.UI', function () {
+    var ui, fixtureEl, textInput, telInput1, telInput2;;
 
-  beforeEach(function () {
-    fixtureEl = document.createElement('DIV');
-    fixtureEl.innerHTML =
-      "<input type='text' /><input type='tel' /><input type='tel' />";
+    beforeEach(function () {
+      ui = new phoneItIn.UI();
 
-    document.body.appendChild( fixtureEl );
+      fixtureEl = document.createElement('DIV');
+      fixtureEl.innerHTML =
+        "<input type='text' /><input type='tel' /><input type='tel' />";
 
-    textInput = fixtureEl.firstChild;
-    telInput1 = textInput.nextSibling;
-    telInput2 = fixtureEl.lastChild;
+      document.body.appendChild( fixtureEl );
 
-    spyOn( textInput, 'addEventListener' );
-    spyOn( telInput1, 'addEventListener' );
-    spyOn( telInput2, 'addEventListener' );
-  });
+      textInput = fixtureEl.firstChild;
+      telInput1 = textInput.nextSibling;
+      telInput2 = fixtureEl.lastChild;
 
-  afterEach(function () {
-    if( fixtureEl ) { document.body.removeChild( fixtureEl ); }
-    fixtureEl = null;
-  });
+      spyOn( textInput, 'addEventListener' );
+      spyOn( telInput1, 'addEventListener' );
+      spyOn( telInput2, 'addEventListener' );
+    });
 
-  it( "binds a UI instance to all 'tel' inputs on the page", function () {
-    phoneItIn.setupForTelInputs();
-    expect( telInput1.addEventListener ).toHaveBeenCalledWith( 'focus', jasmine.any(Function) );
-    expect( telInput2.addEventListener ).toHaveBeenCalledWith( 'focus', jasmine.any(Function) );
-  });
+    afterEach(function () {
+      if( fixtureEl ) { document.body.removeChild( fixtureEl ); }
+      fixtureEl = null;
+    });
 
-  it( "does not bind to inputs other than 'tel' type", function () {
-    phoneItIn.setupForTelInputs();
-    expect( textInput.addEventListener ).not.toHaveBeenCalled();
+    describe( '#bindToTelInputs', function () {
+      it( "binds to all 'tel' inputs on the page", function () {
+        ui.bindToTelInputs();
+        expect( telInput1.addEventListener ).toHaveBeenCalledWith( 'focus', jasmine.any(Function) );
+        expect( telInput2.addEventListener ).toHaveBeenCalledWith( 'focus', jasmine.any(Function) );
+      });
+
+      it( "does not bind to inputs other than 'tel' type", function () {
+        ui.bindToTelInputs();
+        expect( textInput.addEventListener ).not.toHaveBeenCalled();
+      });
+    });
   });
 });
 

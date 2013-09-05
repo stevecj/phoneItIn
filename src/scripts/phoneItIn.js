@@ -77,9 +77,7 @@ phoneItIn.formatters.nanp = (function (my) {
   return my;
 })( phoneItIn.formatters.nanp || {} );
 
-phoneItIn.UI = (function () {
-  var formatter = phoneItIn.formatters.nanp;
-
+phoneItIn.UI = (function ( document, formatter ) {
   function UI() { }
   UI.prototype = {};
 
@@ -122,7 +120,7 @@ phoneItIn.UI = (function () {
     }
   }
 
-  function bindToInput( input ){
+  function bindToInput( input ) {
     input.addEventListener( 'focus' , function(){ addHelpToInput( input );     } );
     input.addEventListener( 'blur'  , function(){ formatValueOfInput( input ); } );
     input.addEventListener( 'blur'  , function(){ removeHelp();                } );
@@ -130,18 +128,7 @@ phoneItIn.UI = (function () {
   }
   UI.prototype.bindToInput = bindToInput;
 
-  return UI;
-})();
-
-(function ( my ) {
-  var ui;
-
-  function getUi() {
-    ui = ui || new phoneItIn.UI();
-    return ui;
-  }
-
-  function setupForTelInputs() {
+  function bindToTelInputs() {
     var i, input, type,
         inputs = document.getElementsByTagName('INPUT'),
         length = inputs.length;
@@ -150,9 +137,27 @@ phoneItIn.UI = (function () {
       input = inputs[ i ];
       type = input.getAttribute( 'type' );
       if ( type === 'tel' ) {
-        getUi().bindToInput( input );
+        this.bindToInput( input );
       }
     }
   }
+  UI.prototype.bindToTelInputs = bindToTelInputs;
+
+  return UI;
+})( document, phoneItIn.formatters.nanp );
+
+phoneItIn = (function ( my ) {
+  var ui;
+
+  function getUi() {
+    ui = ui || new my.UI();
+    return ui;
+  }
+
+  function setupForTelInputs() {
+    getUi().bindToTelInputs();
+  }
   my.setupForTelInputs = setupForTelInputs;
+
+  return my;
 })( phoneItIn );
