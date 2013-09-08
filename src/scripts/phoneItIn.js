@@ -77,50 +77,192 @@ phoneItIn.formatters.nanp = (function (my) {
   return my;
 })( phoneItIn.formatters.nanp || {} );
 
-phoneItIn.UI = (function ( document, formatter ) {
+phoneItIn.pixelGeometry = phoneItIn.pixelGeometry || {};
+
+phoneItIn.pixelGeometry.Vector2d = (function () {
+  function Vector2d( h, v ) {
+    this.h = h;
+    this.v = v;
+  }
+  Vector2d.prototype = {};
+
+  function getTopLeftStyle() {
+    return "top: "  + this.v + "px; " +
+           "left: " + this.h + "px;"
+  }
+  Vector2d.prototype.getTopLeftStyle = getTopLeftStyle;
+
+  return Vector2d;
+})();
+
+phoneItIn.pixelGeometry.Box2d = (function ( Vector2d ) {
+  function Box2d( l, t, w, h ) {
+    this.topLeft = new Vector2d( l, t );
+    this.size    = new Vector2d( w, h );
+  }
+  Box2d.prototype = {};
+
+  function below() {
+    var topLeft= this.topLeft;
+    return new Vector2d( topLeft.h, topLeft.v + this.size.v );
+  }
+  Box2d.prototype.below = below;
+
+  return Box2d;
+})( phoneItIn.pixelGeometry.Vector2d );
+
+phoneItIn.domAdapters = phoneItIn.domAdapters || {};
+
+phoneItIn.domAdapters.basicAdapter = (function ( my, document ) {
+  function getElementById( id ) {
+    var el = document.getElementById( id );
+    return el ? new my.Element( el ) : null;
+  }
+  my.getElementById = getElementById;
+
+  function createDiv() {
+    var divEl = document.createElement('DIV')
+    return new my.Element( divEl );
+  }
+  my.createDiv = createDiv;
+
+  function inputsOfType( desiredType ) {
+    var i, input, type,
+        inputs = document.getElementsByTagName('INPUT'),
+        length = inputs.length,
+        telInputs = [];
+
+    for( i = 0; i < length; i++ ) {
+      input = inputs[ i ];
+      type = input.getAttribute('type');
+      if ( type === desiredType ) {
+        telInputs.push( input );
+      }
+    }
+
+    return telInputs;
+  }
+  my.inputsOfType = inputsOfType;
+
+  return my;
+})( phoneItIn.domAdapters.basicAdapter || {}, document );
+
+phoneItIn.domAdapters.basicAdapter.Element = (function () {
+  function Element(domElement) {
+    this.domElement = domElement;
+  }
+  Element.prototype = {};
+
+  function setInnerHtml( html ) {
+    this.domElement.innerHTML = html;
+  }
+  Element.prototype.setInnerHtml = setInnerHtml;
+
+  function setClassName( className ) {
+    this.domElement.className = className;
+  }
+  Element.prototype.setClassName = setClassName;
+
+  function setId( value ) {
+    this.domElement.id = value;
+  }
+  Element.prototype.setId = setId;
+
+  function setStyle( value ) {
+    this.domElement.setAttribute( 'style', value );
+  }
+  Element.prototype.setStyle = setStyle;
+
+  function addEventListener( eventName, listener ) {
+    this.domElement.addEventListener( eventName, listener );
+  }
+  Element.prototype.addEventListener = addEventListener;
+
+  function getValue() {
+    return this.domElement.value;
+  }
+  Element.prototype.getValue = getValue;
+
+  function setValue( newValue ) {
+    this.domElement.value = newValue;
+  }
+  Element.prototype.setValue = setValue;
+
+  function insertNext( elementToInsert ) {
+    var domElementToInsert = elementToInsert.domElement,
+        parentEl = this.domElement.parentNode,
+        priorNextSiblingEl = this.domElement.nextSibling;
+
+    parentEl.insertBefore( domElementToInsert, priorNextSiblingEl );
+  }
+  Element.prototype.insertNext = insertNext;
+
+  function remove() {
+    var domElement = this.domElement,
+        parentEl = domElement.parentNode;
+
+    parentEl.removeChild( domElement );
+  }
+  Element.prototype.remove = remove;
+
+  function getOffsetBox() {
+    return new phoneItIn.pixelGeometry.Box2d(
+      this.domElement.offsetLeft  , this.domElement.offsetTop    ,
+      this.domElement.offsetWidth , this.domElement.offsetHeight
+    );
+  }
+  Element.prototype.getOffsetBox = getOffsetBox;
+
+  return Element;
+})();
+
+phoneItIn.UI = (function ( domAdapter, formatter ) {
   function UI() { }
   UI.prototype = {};
 
   function addHelpToInput( input ) {
-    var helpEl = document.createElement('DIV');
-    helpEl.setAttribute( 'id', 'phin-help' );
-    helpEl.setAttribute( 'style',
-      "position:absolute; " +
-      "top:" + (input.offsetTop + input.offsetHeight) + "px; " +
-      "left:" + input.offsetLeft + "px;" );
-    helpEl.innerHTML = "<div id='phin-help-inner'></div>";
-    input.parentNode.insertBefore( helpEl, input.nextSibling );
+    var help = domAdapter.createDiv(),
+        inputOffsetBox = input.getOffsetBox(),
+        helpTopLeft = inputOffsetBox.below();
+
+    help.setId( 'phin-help' );
+    help.setStyle( "position:absolute; " + helpTopLeft.getTopLeftStyle() );
+    help.setInnerHtml( "<div id='phin-help-inner'></div>" );
+    input.insertNext( help );
     updateHelpForInput( input );
   }
 
   function updateHelpForInput( input ) {
-    var validity,
-        helpEl      = document.getElementById( 'phin-help'       ),
-        helpInnerEl = document.getElementById( 'phin-help-inner' );
+    var VALIDITY_CLASS_MAP = {
+          partial  : ''              ,
+          invalid  : 'phin-invalid'  ,
+          complete : 'phin-complete'
+        },
+        formattedValue = formatter.format( input.getValue() ),
+        validity = formatter.validityOf( input.getValue() ),
+        help = domAdapter.getElementById( 'phin-help' ),
+        helpInner = domAdapter.getElementById( 'phin-help-inner' );
 
-    helpInnerEl.innerHTML = formatter.format( input.value );
-    validity = formatter.validityOf( input.value );
-    switch( validity ) {
-      case 'partial'  : helpEl.className = ''              ; break;
-      case 'invalid'  : helpEl.className = 'phin-invalid'  ; break;
-      case 'complete' : helpEl.className = 'phin-complete' ; break;
-    }
+    helpInner.setInnerHtml( formattedValue );
+    help.setClassName( VALIDITY_CLASS_MAP[ validity ] );
   }
 
   function removeHelp() {
-    var helpEl = document.getElementById('phin-help');
-    if( helpEl ){ helpEl.parentNode.removeChild( helpEl ); }
+    var help = domAdapter.getElementById('phin-help');
+    if( help ){ help.remove(); }
   }
 
   function formatValueOfInput( input ) {
-    var value = input.value;
+    var value = input.getValue();
 
     if ( formatter.validityOf( value ) === 'complete' ) {
-      input.value = formatter.format( value );
+      input.setValue( formatter.format( value ) );
     }
   }
 
-  function bindToInput( input ) {
+  function bindToInput( inputDomElement ) {
+    var input = new domAdapter.Element( inputDomElement );
+
     input.addEventListener( 'focus' , function(){ addHelpToInput( input );     } );
     input.addEventListener( 'blur'  , function(){ formatValueOfInput( input ); } );
     input.addEventListener( 'blur'  , function(){ removeHelp();                } );
@@ -130,21 +272,17 @@ phoneItIn.UI = (function ( document, formatter ) {
 
   function bindToTelInputs() {
     var i, input, type,
-        inputs = document.getElementsByTagName('INPUT'),
+        inputs = domAdapter.inputsOfType( 'tel' ),
         length = inputs.length;
 
     for( i = 0; i < length; i++ ) {
-      input = inputs[ i ];
-      type = input.getAttribute( 'type' );
-      if ( type === 'tel' ) {
-        this.bindToInput( input );
-      }
+      this.bindToInput( inputs[i] );
     }
   }
   UI.prototype.bindToTelInputs = bindToTelInputs;
 
   return UI;
-})( document, phoneItIn.formatters.nanp );
+})( phoneItIn.domAdapters.basicAdapter, phoneItIn.formatters.nanp );
 
 phoneItIn = (function ( my ) {
   var ui;

@@ -1,7 +1,7 @@
 describe( 'phoneItIn', function () {
 
   describe( '.UI', function () {
-    var ui, fixtureEl, textInput, telInput1, telInput2;;
+    var ui, fixtureEl, textInput, telInput1, telInput2;
 
     beforeEach(function () {
       ui = new phoneItIn.UI();
