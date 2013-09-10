@@ -14,7 +14,7 @@ phoneItInDrivers.Browser = (function ( browser, document, UI ) {
     this.teardown = teardown;
 
     function getUi() {
-      ui = ui || new UI();
+      ui = ui || UI.getNewInstance();
       return ui;
     }
 

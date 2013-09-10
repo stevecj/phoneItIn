@@ -29,7 +29,7 @@ var phoneItIn = (function ( my ) {
   var ui;
 
   function getUi() {
-    ui = ui || new my.UI();
+    ui = ui || my.UI.getNewInstance();
     return ui;
   }
 
@@ -42,7 +42,14 @@ var phoneItIn = (function ( my ) {
 })( phoneItIn || {} );
 
 phoneItIn.UI = (function ( phoneItIn, formatter ) {
-  function UI() { }
+  function UI( domAdapter ) {
+    this.domAdapter = domAdapter;
+  }
+
+  function getNewInstance() {
+    return new UI( phoneItIn.domAdapters.basicAdapter );
+  }
+  UI.getNewInstance = getNewInstance;
 
   function getDomAdapter() {
     return phoneItIn.domAdapters.basicAdapter;
@@ -52,8 +59,8 @@ phoneItIn.UI = (function ( phoneItIn, formatter ) {
     return phoneItIn.formatters.nanp;
   }
 
-  function addHelpToInput( input ) {
-    var help = getDomAdapter().createDiv(),
+  function addHelpToInput( my, input ) {
+    var help = my.domAdapter.createDiv(),
         inputOffsetBox = input.getOffsetBox(),
         helpTopLeft = inputOffsetBox.below();
 
@@ -61,10 +68,10 @@ phoneItIn.UI = (function ( phoneItIn, formatter ) {
     help.setStyle( "position:absolute; " + helpTopLeft.getTopLeftStyle() );
     help.setInnerHtml( "<div id='phin-help-inner'></div>" );
     input.insertNext( help );
-    updateHelpForInput( input );
+    updateHelpForInput( my, input );
   }
 
-  function updateHelpForInput( input ) {
+  function updateHelpForInput( my, input ) {
     var VALIDITY_CLASS_MAP = {
           partial  : ''              ,
           invalid  : 'phin-invalid'  ,
@@ -72,15 +79,15 @@ phoneItIn.UI = (function ( phoneItIn, formatter ) {
         },
         formattedValue = getFormatter().format( input.getValue() ),
         validity = getFormatter().validityOf( input.getValue() ),
-        help = getDomAdapter().getElementById( 'phin-help' ),
-        helpInner = getDomAdapter().getElementById( 'phin-help-inner' );
+        help = my.domAdapter.getElementById( 'phin-help' ),
+        helpInner = my.domAdapter.getElementById( 'phin-help-inner' );
 
     helpInner.setInnerHtml( formattedValue );
     help.setClassName( VALIDITY_CLASS_MAP[ validity ] );
   }
 
-  function removeHelp() {
-    var help = getDomAdapter().getElementById('phin-help');
+  function removeHelp( my ) {
+    var help = my.domAdapter.getElementById('phin-help');
     if( help ){ help.remove(); }
   }
 
@@ -93,18 +100,19 @@ phoneItIn.UI = (function ( phoneItIn, formatter ) {
   }
 
   function bindToInput( inputDomElement ) {
-    var input = new (getDomAdapter().Element)( inputDomElement );
+    var input = new (this.domAdapter.Element)( inputDomElement )
+        my = this;
 
-    input.addEventListener( 'focus' , function(){ addHelpToInput( input );     } );
-    input.addEventListener( 'blur'  , function(){ formatValueOfInput( input ); } );
-    input.addEventListener( 'blur'  , function(){ removeHelp();                } );
-    input.addEventListener( 'input' , function(){ updateHelpForInput( input ); } );
+    input.addEventListener( 'focus' , function(){ addHelpToInput( my, input );     } );
+    input.addEventListener( 'blur'  , function(){ formatValueOfInput( input );     } );
+    input.addEventListener( 'blur'  , function(){ removeHelp( my );                } );
+    input.addEventListener( 'input' , function(){ updateHelpForInput( my, input ); } );
   }
   UI.prototype.bindToInput = bindToInput;
 
   function bindToTelInputs() {
     var i, input, type,
-        inputs = getDomAdapter().inputsOfType( 'tel' ),
+        inputs = this.domAdapter.inputsOfType( 'tel' ),
         length = inputs.length;
 
     for( i = 0; i < length; i++ ) {
