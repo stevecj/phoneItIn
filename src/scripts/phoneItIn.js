@@ -43,7 +43,6 @@ var phoneItIn = (function ( my ) {
 
 phoneItIn.UI = (function ( phoneItIn, formatter ) {
   function UI() { }
-  UI.prototype = {};
 
   function getDomAdapter() {
     return phoneItIn.domAdapters.basicAdapter;
@@ -124,7 +123,6 @@ phoneItIn.pixelGeometry.Vector2d = (function () {
     this.h = h;
     this.v = v;
   }
-  Vector2d.prototype = {};
 
   function getTopLeftStyle() {
     return "top: "  + this.v + "px; " +
@@ -140,7 +138,6 @@ phoneItIn.pixelGeometry.Box2d = (function ( Vector2d ) {
     this.topLeft = new Vector2d( l, t );
     this.size    = new Vector2d( w, h );
   }
-  Box2d.prototype = {};
 
   function below() {
     var topLeft= this.topLeft;
@@ -241,7 +238,6 @@ phoneItIn.domAdapters.basicAdapter.Element = (function () {
   function Element(domElement) {
     this.domElement = domElement;
   }
-  Element.prototype = {};
 
   function setInnerHtml( html ) {
     this.domElement.innerHTML = html;
