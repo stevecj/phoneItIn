@@ -1,6 +1,6 @@
 /****
  * Copyright (c) 2013 Steve Jorgensen
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
  * "Software"), to deal in the Software without restriction, including
@@ -8,10 +8,10 @@
  * distribute, sublicense, and/or sell copies of the Software, and to
  * permit persons to whom the Software is furnished to do so, subject to
  * the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
  * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -25,7 +25,131 @@
  * See https://github.com/stevecj/phoneItIn for information and updates.
  ****/
 
-var phoneItIn = phoneItIn || {};
+var phoneItIn = (function ( my ) {
+  var ui;
+
+  function getUi() {
+    ui = ui || new my.UI();
+    return ui;
+  }
+
+  function setupForTelInputs() {
+    getUi().bindToTelInputs();
+  }
+  my.setupForTelInputs = setupForTelInputs;
+
+  return my;
+})( phoneItIn || {} );
+
+phoneItIn.UI = (function ( phoneItIn, formatter ) {
+  function UI() { }
+  UI.prototype = {};
+
+  function getDomAdapter() {
+    return phoneItIn.domAdapters.basicAdapter;
+  }
+
+  function getFormatter() {
+    return phoneItIn.formatters.nanp;
+  }
+
+  function addHelpToInput( input ) {
+    var help = getDomAdapter().createDiv(),
+        inputOffsetBox = input.getOffsetBox(),
+        helpTopLeft = inputOffsetBox.below();
+
+    help.setId( 'phin-help' );
+    help.setStyle( "position:absolute; " + helpTopLeft.getTopLeftStyle() );
+    help.setInnerHtml( "<div id='phin-help-inner'></div>" );
+    input.insertNext( help );
+    updateHelpForInput( input );
+  }
+
+  function updateHelpForInput( input ) {
+    var VALIDITY_CLASS_MAP = {
+          partial  : ''              ,
+          invalid  : 'phin-invalid'  ,
+          complete : 'phin-complete'
+        },
+        formattedValue = getFormatter().format( input.getValue() ),
+        validity = getFormatter().validityOf( input.getValue() ),
+        help = getDomAdapter().getElementById( 'phin-help' ),
+        helpInner = getDomAdapter().getElementById( 'phin-help-inner' );
+
+    helpInner.setInnerHtml( formattedValue );
+    help.setClassName( VALIDITY_CLASS_MAP[ validity ] );
+  }
+
+  function removeHelp() {
+    var help = getDomAdapter().getElementById('phin-help');
+    if( help ){ help.remove(); }
+  }
+
+  function formatValueOfInput( input ) {
+    var value = input.getValue();
+
+    if ( getFormatter().validityOf( value ) === 'complete' ) {
+      input.setValue( getFormatter().format( value ) );
+    }
+  }
+
+  function bindToInput( inputDomElement ) {
+    var input = new (getDomAdapter().Element)( inputDomElement );
+
+    input.addEventListener( 'focus' , function(){ addHelpToInput( input );     } );
+    input.addEventListener( 'blur'  , function(){ formatValueOfInput( input ); } );
+    input.addEventListener( 'blur'  , function(){ removeHelp();                } );
+    input.addEventListener( 'input' , function(){ updateHelpForInput( input ); } );
+  }
+  UI.prototype.bindToInput = bindToInput;
+
+  function bindToTelInputs() {
+    var i, input, type,
+        inputs = getDomAdapter().inputsOfType( 'tel' ),
+        length = inputs.length;
+
+    for( i = 0; i < length; i++ ) {
+      this.bindToInput( inputs[i] );
+    }
+  }
+  UI.prototype.bindToTelInputs = bindToTelInputs;
+
+  return UI;
+})( phoneItIn );
+
+phoneItIn.pixelGeometry = phoneItIn.pixelGeometry || {};
+
+phoneItIn.pixelGeometry.Vector2d = (function () {
+  function Vector2d( h, v ) {
+    this.h = h;
+    this.v = v;
+  }
+  Vector2d.prototype = {};
+
+  function getTopLeftStyle() {
+    return "top: "  + this.v + "px; " +
+           "left: " + this.h + "px;"
+  }
+  Vector2d.prototype.getTopLeftStyle = getTopLeftStyle;
+
+  return Vector2d;
+})();
+
+phoneItIn.pixelGeometry.Box2d = (function ( Vector2d ) {
+  function Box2d( l, t, w, h ) {
+    this.topLeft = new Vector2d( l, t );
+    this.size    = new Vector2d( w, h );
+  }
+  Box2d.prototype = {};
+
+  function below() {
+    var topLeft= this.topLeft;
+    return new Vector2d( topLeft.h, topLeft.v + this.size.v );
+  }
+  Box2d.prototype.below = below;
+
+  return Box2d;
+})( phoneItIn.pixelGeometry.Vector2d );
 
 phoneItIn.formatters = phoneItIn.formatters || {};
 
@@ -76,40 +200,6 @@ phoneItIn.formatters.nanp = (function (my) {
 
   return my;
 })( phoneItIn.formatters.nanp || {} );
-
-phoneItIn.pixelGeometry = phoneItIn.pixelGeometry || {};
-
-phoneItIn.pixelGeometry.Vector2d = (function () {
-  function Vector2d( h, v ) {
-    this.h = h;
-    this.v = v;
-  }
-  Vector2d.prototype = {};
-
-  function getTopLeftStyle() {
-    return "top: "  + this.v + "px; " +
-           "left: " + this.h + "px;"
-  }
-  Vector2d.prototype.getTopLeftStyle = getTopLeftStyle;
-
-  return Vector2d;
-})();
-
-phoneItIn.pixelGeometry.Box2d = (function ( Vector2d ) {
-  function Box2d( l, t, w, h ) {
-    this.topLeft = new Vector2d( l, t );
-    this.size    = new Vector2d( w, h );
-  }
-  Box2d.prototype = {};
-
-  function below() {
-    var topLeft= this.topLeft;
-    return new Vector2d( topLeft.h, topLeft.v + this.size.v );
-  }
-  Box2d.prototype.below = below;
-
-  return Box2d;
-})( phoneItIn.pixelGeometry.Vector2d );
 
 phoneItIn.domAdapters = phoneItIn.domAdapters || {};
 
@@ -215,87 +305,3 @@ phoneItIn.domAdapters.basicAdapter.Element = (function () {
 
   return Element;
 })();
-
-phoneItIn.UI = (function ( domAdapter, formatter ) {
-  function UI() { }
-  UI.prototype = {};
-
-  function addHelpToInput( input ) {
-    var help = domAdapter.createDiv(),
-        inputOffsetBox = input.getOffsetBox(),
-        helpTopLeft = inputOffsetBox.below();
-
-    help.setId( 'phin-help' );
-    help.setStyle( "position:absolute; " + helpTopLeft.getTopLeftStyle() );
-    help.setInnerHtml( "<div id='phin-help-inner'></div>" );
-    input.insertNext( help );
-    updateHelpForInput( input );
-  }
-
-  function updateHelpForInput( input ) {
-    var VALIDITY_CLASS_MAP = {
-          partial  : ''              ,
-          invalid  : 'phin-invalid'  ,
-          complete : 'phin-complete'
-        },
-        formattedValue = formatter.format( input.getValue() ),
-        validity = formatter.validityOf( input.getValue() ),
-        help = domAdapter.getElementById( 'phin-help' ),
-        helpInner = domAdapter.getElementById( 'phin-help-inner' );
-
-    helpInner.setInnerHtml( formattedValue );
-    help.setClassName( VALIDITY_CLASS_MAP[ validity ] );
-  }
-
-  function removeHelp() {
-    var help = domAdapter.getElementById('phin-help');
-    if( help ){ help.remove(); }
-  }
-
-  function formatValueOfInput( input ) {
-    var value = input.getValue();
-
-    if ( formatter.validityOf( value ) === 'complete' ) {
-      input.setValue( formatter.format( value ) );
-    }
-  }
-
-  function bindToInput( inputDomElement ) {
-    var input = new domAdapter.Element( inputDomElement );
-
-    input.addEventListener( 'focus' , function(){ addHelpToInput( input );     } );
-    input.addEventListener( 'blur'  , function(){ formatValueOfInput( input ); } );
-    input.addEventListener( 'blur'  , function(){ removeHelp();                } );
-    input.addEventListener( 'input' , function(){ updateHelpForInput( input ); } );
-  }
-  UI.prototype.bindToInput = bindToInput;
-
-  function bindToTelInputs() {
-    var i, input, type,
-        inputs = domAdapter.inputsOfType( 'tel' ),
-        length = inputs.length;
-
-    for( i = 0; i < length; i++ ) {
-      this.bindToInput( inputs[i] );
-    }
-  }
-  UI.prototype.bindToTelInputs = bindToTelInputs;
-
-  return UI;
-})( phoneItIn.domAdapters.basicAdapter, phoneItIn.formatters.nanp );
-
-phoneItIn = (function ( my ) {
-  var ui;
-
-  function getUi() {
-    ui = ui || new my.UI();
-    return ui;
-  }
-
-  function setupForTelInputs() {
-    getUi().bindToTelInputs();
-  }
-  my.setupForTelInputs = setupForTelInputs;
-
-  return my;
-})( phoneItIn );
