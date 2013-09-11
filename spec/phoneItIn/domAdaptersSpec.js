@@ -63,19 +63,18 @@ describe( 'phoneItIn.domAdapters', function () {
       });
 
       it( "finds both elements of 'foo' type", function () {
-        expect(
-          basicAdapter.inputsOfType( 'foo' )
-        ).toEqual(
-          [ fooInput1, fooInput2 ]
-        );
+        foundInputsAdapters = basicAdapter.inputsOfType( 'foo' );
+
+        expect( foundInputsAdapters.length ).toEqual( 2 );
+        expect( foundInputsAdapters[0].domElement ).toEqual( fooInput1 );
+        expect( foundInputsAdapters[1].domElement ).toEqual( fooInput2 );
       });
 
       it( "finds the element of 'bar' type", function () {
-        expect(
-          basicAdapter.inputsOfType( 'bar' )
-        ).toEqual(
-          [ barInput ]
-        );
+        foundInputsAdapters = basicAdapter.inputsOfType( 'bar' );
+
+        expect( foundInputsAdapters.length ).toEqual( 1 );
+        expect( foundInputsAdapters[0].domElement ).toEqual( barInput );
       });
     });
 

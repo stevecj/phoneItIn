@@ -43,7 +43,10 @@ var phoneItIn = (function ( my ) {
 
 phoneItIn.UI = (function ( phoneItIn, formatter ) {
   function UI( domAdapter ) {
-    this.domAdapter = domAdapter;
+    function getDomAdapter() {
+      return domAdapter;
+    }
+    this.getDomAdapter = getDomAdapter;
   }
 
   function getNewInstance() {
@@ -51,16 +54,12 @@ phoneItIn.UI = (function ( phoneItIn, formatter ) {
   }
   UI.getNewInstance = getNewInstance;
 
-  function getDomAdapter() {
-    return phoneItIn.domAdapters.basicAdapter;
-  }
-
   function getFormatter() {
     return phoneItIn.formatters.nanp;
   }
 
   function addHelpToInput( my, input ) {
-    var help = my.domAdapter.createDiv(),
+    var help = my.getDomAdapter().createDiv(),
         inputOffsetBox = input.getOffsetBox(),
         helpTopLeft = inputOffsetBox.below();
 
@@ -79,15 +78,15 @@ phoneItIn.UI = (function ( phoneItIn, formatter ) {
         },
         formattedValue = getFormatter().format( input.getValue() ),
         validity = getFormatter().validityOf( input.getValue() ),
-        help = my.domAdapter.getElementById( 'phin-help' ),
-        helpInner = my.domAdapter.getElementById( 'phin-help-inner' );
+        help = my.getDomAdapter().getElementById( 'phin-help' ),
+        helpInner = my.getDomAdapter().getElementById( 'phin-help-inner' );
 
     helpInner.setInnerHtml( formattedValue );
     help.setClassName( VALIDITY_CLASS_MAP[ validity ] );
   }
 
   function removeHelp( my ) {
-    var help = my.domAdapter.getElementById('phin-help');
+    var help = my.getDomAdapter().getElementById('phin-help');
     if( help ){ help.remove(); }
   }
 
@@ -99,24 +98,26 @@ phoneItIn.UI = (function ( phoneItIn, formatter ) {
     }
   }
 
-  function bindToInput( inputDomElement ) {
-    var input = new (this.domAdapter.Element)( inputDomElement )
-        my = this;
-
+  function bindToInputAdapter( my, input ) {
     input.addEventListener( 'focus' , function(){ addHelpToInput( my, input );     } );
     input.addEventListener( 'blur'  , function(){ formatValueOfInput( input );     } );
     input.addEventListener( 'blur'  , function(){ removeHelp( my );                } );
     input.addEventListener( 'input' , function(){ updateHelpForInput( my, input ); } );
   }
+
+  function bindToInput( inputDomElement ) {
+    var input = this.getDomAdapter().newElementAdapterFor( inputDomElement );
+    bindToInputAdapter( this, input );
+  }
   UI.prototype.bindToInput = bindToInput;
 
   function bindToTelInputs() {
-    var i, input, type,
-        inputs = this.domAdapter.inputsOfType( 'tel' ),
+    var i,
+        inputs = this.getDomAdapter().inputsOfType( 'tel' ),
         length = inputs.length;
 
     for( i = 0; i < length; i++ ) {
-      this.bindToInput( inputs[i] );
+      bindToInputAdapter( this, inputs[i] );
     }
   }
   UI.prototype.bindToTelInputs = bindToTelInputs;
@@ -209,15 +210,20 @@ phoneItIn.formatters.nanp = (function (my) {
 phoneItIn.domAdapters = phoneItIn.domAdapters || {};
 
 phoneItIn.domAdapters.basicAdapter = (function ( my, document ) {
+  function newElementAdapterFor( domElement ) {
+    return domElement ? new my.Element( domElement ) : null;
+  }
+  my.newElementAdapterFor = newElementAdapterFor;
+
   function getElementById( id ) {
     var el = document.getElementById( id );
-    return el ? new my.Element( el ) : null;
+    return newElementAdapterFor( el );
   }
   my.getElementById = getElementById;
 
   function createDiv() {
     var divEl = document.createElement('DIV')
-    return new my.Element( divEl );
+    return newElementAdapterFor( divEl );
   }
   my.createDiv = createDiv;
 
@@ -225,17 +231,17 @@ phoneItIn.domAdapters.basicAdapter = (function ( my, document ) {
     var i, input, type,
         inputs = document.getElementsByTagName('INPUT'),
         length = inputs.length,
-        telInputs = [];
+        matchingInputs = [];
 
     for( i = 0; i < length; i++ ) {
       input = inputs[ i ];
       type = input.getAttribute('type');
       if ( type === desiredType ) {
-        telInputs.push( input );
+        matchingInputs.push( my.newElementAdapterFor( input ) );
       }
     }
 
-    return telInputs;
+    return matchingInputs;
   }
   my.inputsOfType = inputsOfType;
 
