@@ -250,55 +250,58 @@ phoneItIn.domAdapters.basicAdapter = (function ( my, document ) {
 
 phoneItIn.domAdapters.basicAdapter.Element = (function () {
   function Element(domElement) {
-    this.domElement = domElement;
+    function getDomElement() {
+      return domElement;
+    }
+    this.getDomElement = getDomElement;
   }
 
   function setInnerHtml( html ) {
-    this.domElement.innerHTML = html;
+    this.getDomElement().innerHTML = html;
   }
   Element.prototype.setInnerHtml = setInnerHtml;
 
   function setClassName( className ) {
-    this.domElement.className = className;
+    this.getDomElement().className = className;
   }
   Element.prototype.setClassName = setClassName;
 
   function setId( value ) {
-    this.domElement.id = value;
+    this.getDomElement().id = value;
   }
   Element.prototype.setId = setId;
 
   function setStyle( value ) {
-    this.domElement.setAttribute( 'style', value );
+    this.getDomElement().setAttribute( 'style', value );
   }
   Element.prototype.setStyle = setStyle;
 
   function addEventListener( eventName, listener ) {
-    this.domElement.addEventListener( eventName, listener );
+    this.getDomElement().addEventListener( eventName, listener );
   }
   Element.prototype.addEventListener = addEventListener;
 
   function getValue() {
-    return this.domElement.value;
+    return this.getDomElement().value;
   }
   Element.prototype.getValue = getValue;
 
   function setValue( newValue ) {
-    this.domElement.value = newValue;
+    this.getDomElement().value = newValue;
   }
   Element.prototype.setValue = setValue;
 
   function insertNext( elementToInsert ) {
-    var domElementToInsert = elementToInsert.domElement,
-        parentEl = this.domElement.parentNode,
-        priorNextSiblingEl = this.domElement.nextSibling;
+    var domElementToInsert = elementToInsert.getDomElement(),
+        parentEl = this.getDomElement().parentNode,
+        priorNextSiblingEl = this.getDomElement().nextSibling;
 
     parentEl.insertBefore( domElementToInsert, priorNextSiblingEl );
   }
   Element.prototype.insertNext = insertNext;
 
   function remove() {
-    var domElement = this.domElement,
+    var domElement = this.getDomElement(),
         parentEl = domElement.parentNode;
 
     parentEl.removeChild( domElement );
@@ -307,8 +310,110 @@ phoneItIn.domAdapters.basicAdapter.Element = (function () {
 
   function getOffsetBox() {
     return new phoneItIn.pixelGeometry.Box2d(
-      this.domElement.offsetLeft  , this.domElement.offsetTop    ,
-      this.domElement.offsetWidth , this.domElement.offsetHeight
+      this.getDomElement().offsetLeft  , this.getDomElement().offsetTop    ,
+      this.getDomElement().offsetWidth , this.getDomElement().offsetHeight
+    );
+  }
+  Element.prototype.getOffsetBox = getOffsetBox;
+
+  return Element;
+})();
+
+phoneItIn.domAdapters.jQueryAdapter = (function ( my, $ ) {
+  function newElementAdapterFor( jQueryArgument ) {
+    return jQueryArgument ? new my.Element( jQueryArgument ) : null;
+  }
+  my.newElementAdapterFor = newElementAdapterFor;
+
+  function getElementById( id ) {
+    var jqResult = $('#' + id);
+    if( jqResult.size() < 1 ) { return null; }
+    return newElementAdapterFor( jqResult );
+  }
+  my.getElementById = getElementById;
+
+  function createDiv() {
+    return newElementAdapterFor('<div>');
+  }
+  my.createDiv = createDiv;
+
+  function inputsOfType( type ) {
+    var jqResult = $( 'input[type=' + type + ']' );
+    return jqResult.map(
+      function () { return newElementAdapterFor( this ); }
+    ).toArray();
+  }
+  my.inputsOfType = inputsOfType;
+  return my;
+})( phoneItIn.domAdapters.jQueryAdapter || {}, jQuery );
+
+phoneItIn.domAdapters.jQueryAdapter.Element = (function () {
+  function Element(domOrJQueryElement) {
+    var jQueryElement = $(domOrJQueryElement);
+
+    function getJQueryElement() {
+      return jQueryElement;
+    }
+    this.getJQueryElement = getJQueryElement;
+  }
+
+  function getDomElement() {
+    return this.getJQueryElement()[0];
+  }
+  Element.prototype.getDomElement = getDomElement;
+
+  function setInnerHtml( html ) {
+    this.getJQueryElement().html( html );
+  }
+  Element.prototype.setInnerHtml = setInnerHtml;
+
+  function setClassName( className ) {
+    this.getJQueryElement().attr( 'class', className );
+  }
+  Element.prototype.setClassName = setClassName;
+
+  function setId( id ) {
+    this.getJQueryElement().attr( 'id', id );
+  }
+  Element.prototype.setId = setId;
+
+  function setStyle( id ) {
+    this.getJQueryElement().attr( 'style', id );
+  }
+  Element.prototype.setStyle = setStyle;
+
+  function addEventListener( eventName, listener ) {
+    this.getJQueryElement().on( eventName, listener );
+  }
+  Element.prototype.addEventListener = addEventListener;
+
+  function getValue() {
+    return this.getJQueryElement().val();
+  }
+  Element.prototype.getValue = getValue;
+
+  function setValue( value ) {
+    this.getJQueryElement().val( value );
+  }
+  Element.prototype.setValue = setValue;
+
+  function insertNext( elementToInsert ) {
+    this.getJQueryElement().after( elementToInsert.getDomElement() );
+  }
+  Element.prototype.insertNext = insertNext;
+
+  function remove() {
+    this.getJQueryElement().detach();
+  }
+  Element.prototype.remove = remove;
+
+  function getOffsetBox() {
+    var jqEl = this.getJQueryElement(),
+        position = jqEl.position();
+
+    return new phoneItIn.pixelGeometry.Box2d(
+      position.left  , position.top ,
+      jqEl.outerWidth() , jqEl.outerHeight()
     );
   }
   Element.prototype.getOffsetBox = getOffsetBox;
