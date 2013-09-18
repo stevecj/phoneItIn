@@ -35,7 +35,23 @@ describe( 'phoneItIn.domAdapters', function () {
         fixtureEl = null;
       });
 
-      describe( '.getElementById', function () {
+      describe( '.newElementAdapterFor()', function () {
+        describe( "for a falsy value", function () {
+          it( "returns null", function () {
+            expect( domAdapter.newElementAdapterFor( null ) ).toBeNull();
+            expect( domAdapter.newElementAdapterFor( undefined ) ).toBeNull();
+          });
+        });
+
+        describe( "for a DOM element object", function () {
+          it( "returns an adapter for the given DOM element", function () {
+            var element = domAdapter.newElementAdapterFor( fixtureEl );
+            expect( element.getDomElement() ).toEqual( fixtureEl );
+          });
+        });
+      });
+
+      describe( '.getElementById()', function () {
         describe( "when no matching element is in the document", function () {
           it( "returns null", function () {
             var found = domAdapter.getElementById('no-such-elmenent');
@@ -95,7 +111,7 @@ describe( 'phoneItIn.domAdapters', function () {
           document.body.appendChild( fixtureEl );
           underlyingEl = fixtureEl.firstChild;
 
-          element = new Element( underlyingEl );
+          element = domAdapter.newElementAdapterFor( underlyingEl );
         });
 
         afterEach(function() {
@@ -176,8 +192,8 @@ describe( 'phoneItIn.domAdapters', function () {
         describe( '#insertNext()', function () {
           it( "inserts the given adapted element as the next sibling", function () {
             var newDomEl = document.createElement('DIV'),
-                newElement = new Element( newDomEl );
-            //TODO: use method of adapter, not new Element().
+                newElement = domAdapter.newElementAdapterFor( newDomEl );
+
             element.insertNext( newElement );
             expect( underlyingEl.nextSibling ).toEqual( newDomEl );
           });
