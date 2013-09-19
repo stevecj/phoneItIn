@@ -4,11 +4,13 @@ describe( 'phoneItIn', function () {
     var ui, domAdapter, telInput1, telInput2;
 
     beforeEach(function () {
-      telInput1 = { addEventListener: function() { } };
-      telInput2 = { addEventListener: function() { } };
-
-      spyOn( telInput1, 'addEventListener' );
-      spyOn( telInput2, 'addEventListener' );
+      function TelInput() {
+        this.addFocusListener = jasmine.createSpy( 'addFocusListener' );
+        this.addBlurListener  = jasmine.createSpy( 'addBlurListener'  );
+        this.addInputListener = jasmine.createSpy( 'addInputListener' );
+      }
+      telInput1 = new TelInput();
+      telInput2 = new TelInput();
 
       domAdapter = {
         inputsOfType         : function () { } ,
@@ -22,7 +24,7 @@ describe( 'phoneItIn', function () {
         var domTelInput1 = {};
         spyOn( domAdapter, 'newElementAdapterFor' ).andReturn( telInput1 );
         ui.bindToInput( domTelInput1 );
-        expect( telInput1.addEventListener ).toHaveBeenCalledWith( 'focus', jasmine.any(Function) );
+        expect( telInput1.addFocusListener ).toHaveBeenCalledWith( jasmine.any(Function) );
         expect( domAdapter.newElementAdapterFor ).toHaveBeenCalledWith( domTelInput1 );
       });
     });
@@ -32,8 +34,8 @@ describe( 'phoneItIn', function () {
         spyOn( domAdapter, 'inputsOfType' ).andReturn([ telInput1, telInput2 ]);
         ui.bindToTelInputs();
         expect( domAdapter.inputsOfType ).toHaveBeenCalledWith( 'tel' );
-        expect( telInput1.addEventListener ).toHaveBeenCalledWith( 'focus', jasmine.any(Function) );
-        expect( telInput2.addEventListener ).toHaveBeenCalledWith( 'focus', jasmine.any(Function) );
+        expect( telInput1.addFocusListener ).toHaveBeenCalledWith( jasmine.any(Function) );
+        expect( telInput2.addFocusListener ).toHaveBeenCalledWith( jasmine.any(Function) );
       });
     });
   });

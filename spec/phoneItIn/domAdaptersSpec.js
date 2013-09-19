@@ -155,7 +155,8 @@ describe( 'phoneItIn.domAdapters', function () {
         });
 
         // TODO: Special handling for input event for older browsers.
-        describe ( '#addEventListener()', function () {
+
+        describe ( "event handler binding", function() {
           var otherInputEl;
 
           beforeEach( function () {
@@ -163,15 +164,40 @@ describe( 'phoneItIn.domAdapters', function () {
             fixtureEl.appendChild( otherInputEl );
           });
 
-          it( "adds a listener for a focus or blur event", function () {
-            var gotFocus = false, lostFocus = false;
-            otherInputEl.focus();
-            element.addEventListener( 'focus' , function () { gotFocus  = true; } );
-            element.addEventListener( 'blur'  , function () { lostFocus = true; } );
-            underlyingEl.focus();
-            expect( gotFocus ).toEqual( true );
-            otherInputEl.focus();
-            expect( lostFocus ).toEqual( true );
+          describe ( '#addFocusListener()', function () {
+            it( "adds a listener for a focus event", function () {
+              var gotFocus = false;
+              otherInputEl.focus();
+              element.addFocusListener( function () { gotFocus  = true; } );
+              underlyingEl.focus();
+              expect( gotFocus ).toEqual( true );
+            });
+          });
+
+          describe ( '#addBlurListener()', function () {
+            it( "adds a listener for a blur event", function () {
+              var lostFocus = false;
+              underlyingEl.focus();
+              element.addBlurListener( function () { lostFocus  = true; } );
+              otherInputEl.focus();
+              expect( lostFocus ).toEqual( true );
+            });
+          });
+
+          describe ( '#addInputListener()', function () {
+            it( "adds a listener for an input event", function () {
+              var gotInput = false;
+              underlyingEl.focus();
+              element.addInputListener( function () { gotInput  = true; } );
+
+              // The DOM 'input' event should fire only when input is changing
+              // due to a user action (not script code), so can't be indirectly
+              // triggered using JS. Must explicitly fire the 'input' event
+              // instead.
+              underlyingEl.dispatchEvent( new Event('input') );
+
+              expect( gotInput ).toEqual( true );
+            });
           });
         });
 

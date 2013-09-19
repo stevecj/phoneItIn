@@ -104,10 +104,10 @@ phoneItIn.UI = (function ( phoneItIn, formatter ) {
   }
 
   function bindToInputAdapter( my, input ) {
-    input.addEventListener( 'focus' , function(){ addHelpToInput( my, input );     } );
-    input.addEventListener( 'blur'  , function(){ formatValueOfInput( input );     } );
-    input.addEventListener( 'blur'  , function(){ removeHelp( my );                } );
-    input.addEventListener( 'input' , function(){ updateHelpForInput( my, input ); } );
+    input.addFocusListener( function(){ addHelpToInput( my, input ); } );
+    input.addBlurListener( function(){ formatValueOfInput( input ); } );
+    input.addBlurListener( function(){ removeHelp( my ); } );
+    input.addInputListener( function(){ updateHelpForInput( my, input ); } );
   }
 
   proto.     bindToInput =
@@ -305,10 +305,22 @@ phoneItIn.domAdapters.basicAdapter.Element = (function () {
     this.getDomElement().setAttribute( 'style', value );
   }
 
-  proto.     addEventListener =
-    function addEventListener( eventName, listener )
+  proto.     addFocusListener =
+    function addFocusListener( listener )
   {
-    this.getDomElement().addEventListener( eventName, listener );
+    this.getDomElement().addEventListener( 'focus', listener );
+  }
+
+  proto.     addBlurListener =
+    function addBlurListener( listener )
+  {
+    this.getDomElement().addEventListener( 'blur', listener );
+  }
+
+  proto.     addInputListener =
+    function addInputListener( listener )
+  {
+    this.getDomElement().addEventListener( 'input', listener );
   }
 
   proto.     getValue =
@@ -354,123 +366,139 @@ phoneItIn.domAdapters.basicAdapter.Element = (function () {
   return Element;
 })();
 
-phoneItIn.domAdapters.jQueryAdapter = (function ( my, $ ) {
-  my.        newElementAdapterFor =
-    function newElementAdapterFor( jQueryArgument )
-  {
-    return jQueryArgument ? new my.Element( jQueryArgument ) : null;
-  }
-
-  my.        getElementById =
-    function getElementById( id )
-  {
-    var jqResult = $('#' + id);
-    if( jqResult.size() < 1 ) { return null; }
-    return my.newElementAdapterFor( jqResult );
-  }
-
-  my.        createDiv =
-    function createDiv()
-  {
-    return my.newElementAdapterFor('<div>');
-  }
-
-  my.        inputsOfType =
-    function inputsOfType( type )
-  {
-    var jqResult = $( 'input[type=' + type + ']' );
-    return jqResult.map(
-      function () { return my.newElementAdapterFor( this ); }
-    ).toArray();
-  }
-
-  return my;
-})( phoneItIn.domAdapters.jQueryAdapter || {}, jQuery );
-
-phoneItIn.domAdapters.jQueryAdapter.Element = (function () {
-  var proto;
-
-  function Element(domOrJQueryElement) {
-    var jQueryElement = $(domOrJQueryElement);
-
-    function getJQueryElement() {
-      return jQueryElement;
+if ( typeof jQuery != 'undefined' ) {
+  phoneItIn.domAdapters.jQueryAdapter = (function ( my, $ ) {
+    my.        newElementAdapterFor =
+      function newElementAdapterFor( jQueryArgument )
+    {
+      return jQueryArgument ? new my.Element( jQueryArgument ) : null;
     }
-    this.getJQueryElement = getJQueryElement;
-  }
-  proto = Element.prototype;
 
-  proto.     getDomElement =
-    function getDomElement()
-  {
-    return this.getJQueryElement()[0];
-  }
+    my.        getElementById =
+      function getElementById( id )
+    {
+      var jqResult = $('#' + id);
+      if( jqResult.size() < 1 ) { return null; }
+      return my.newElementAdapterFor( jqResult );
+    }
 
-  proto.     setInnerHtml =
-    function setInnerHtml( html )
-  {
-    this.getJQueryElement().html( html );
-  }
+    my.        createDiv =
+      function createDiv()
+    {
+      return my.newElementAdapterFor('<div>');
+    }
 
-  proto.     setClassName =
-    function setClassName( className )
-  {
-    this.getJQueryElement().attr( 'class', className );
-  }
+    my.        inputsOfType =
+      function inputsOfType( type )
+    {
+      var jqResult = $( 'input[type=' + type + ']' );
+      return jqResult.map(
+        function () { return my.newElementAdapterFor( this ); }
+      ).toArray();
+    }
 
-  proto.     setId =
-    function setId( id )
-  {
-    this.getJQueryElement().attr( 'id', id );
-  }
+    return my;
+  })( phoneItIn.domAdapters.jQueryAdapter || {}, jQuery );
+}
 
-  proto.     setStyle =
-    function setStyle( id )
-  {
-    this.getJQueryElement().attr( 'style', id );
-  }
+if( typeof phoneItIn.domAdapters.jQueryAdapter != 'undefined' ) {
+  phoneItIn.domAdapters.jQueryAdapter.Element = (function () {
+    var proto;
 
-  proto.     addEventListener =
-    function addEventListener( eventName, listener )
-  {
-    this.getJQueryElement().on( eventName, listener );
-  }
+    function Element(domOrJQueryElement) {
+      var jQueryElement = $(domOrJQueryElement);
 
-  proto.     getValue =
-    function getValue()
-  {
-    return this.getJQueryElement().val();
-  }
+      function getJQueryElement() {
+        return jQueryElement;
+      }
+      this.getJQueryElement = getJQueryElement;
+    }
+    proto = Element.prototype;
 
-  proto.     setValue =
-    function setValue( value )
-  {
-    this.getJQueryElement().val( value );
-  }
+    proto.     getDomElement =
+      function getDomElement()
+    {
+      return this.getJQueryElement()[0];
+    }
 
-  proto.     insertNext =
-    function insertNext( elementToInsert )
-  {
-    this.getJQueryElement().after( elementToInsert.getDomElement() );
-  }
+    proto.     setInnerHtml =
+      function setInnerHtml( html )
+    {
+      this.getJQueryElement().html( html );
+    }
 
-  proto.     remove =
-    function remove()
-  {
-    this.getJQueryElement().detach();
-  }
+    proto.     setClassName =
+      function setClassName( className )
+    {
+      this.getJQueryElement().attr( 'class', className );
+    }
 
-  proto.     getOffsetBox =
-    function getOffsetBox()
-  {
-    var jqEl = this.getJQueryElement(),
-        position = jqEl.position();
+    proto.     setId =
+      function setId( id )
+    {
+      this.getJQueryElement().attr( 'id', id );
+    }
 
-    return new phoneItIn.pixelGeometry.Box2d(
-      position.left  , position.top ,
-      jqEl.outerWidth() , jqEl.outerHeight()
-    );
-  }
+    proto.     setStyle =
+      function setStyle( id )
+    {
+      this.getJQueryElement().attr( 'style', id );
+    }
 
-  return Element;
-})();
+    proto.     addFocusListener =
+      function addFocusListener( listener )
+    {
+      this.getJQueryElement().focus( listener );
+    }
+
+    proto.     addBlurListener =
+      function addBlurListener( listener )
+    {
+      this.getJQueryElement().blur( listener );
+    }
+
+    proto.     addInputListener =
+      function addInputListener( listener )
+    {
+      this.getJQueryElement().on( 'input', listener );
+    }
+
+    proto.     getValue =
+      function getValue()
+    {
+      return this.getJQueryElement().val();
+    }
+
+    proto.     setValue =
+      function setValue( value )
+    {
+      this.getJQueryElement().val( value );
+    }
+
+    proto.     insertNext =
+      function insertNext( elementToInsert )
+    {
+      this.getJQueryElement().after( elementToInsert.getDomElement() );
+    }
+
+    proto.     remove =
+      function remove()
+    {
+      this.getJQueryElement().detach();
+    }
+
+    proto.     getOffsetBox =
+      function getOffsetBox()
+    {
+      var jqEl = this.getJQueryElement(),
+          position = jqEl.position();
+
+      return new phoneItIn.pixelGeometry.Box2d(
+        position.left  , position.top ,
+        jqEl.outerWidth() , jqEl.outerHeight()
+      );
+    }
+
+    return Element;
+  })();
+}
