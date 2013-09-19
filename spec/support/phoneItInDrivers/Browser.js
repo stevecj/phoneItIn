@@ -5,13 +5,14 @@ phoneItInDrivers.Browser = (function ( browser, document, UI ) {
   function Browser() {
     var fixtureEl, inputs, currentInput, priorInput, ui;
 
-    function teardown() {
+    this.      teardown =
+      function teardown()
+    {
       if ( fixtureEl ) {
         document.body.removeChild( fixtureEl );
       }
       fixtureEl = null;
     }
-    this.teardown = teardown;
 
     function getUi() {
       ui = ui || UI.getNewInstance();
@@ -26,13 +27,14 @@ phoneItInDrivers.Browser = (function ( browser, document, UI ) {
       return fixtureEl;
     }
 
-    function createInputs() {
+    this.      createInputs =
+      function createInputs()
+    {
       inputs = [
         new browser.Input( getFixtureEl(), 1 ) ,
         new browser.Input( getFixtureEl(), 2 )
       ];
     }
-    this.createInputs = createInputs;
 
     function getInputByNum( inputNum ) {
       return inputs[ inputNum - 1 ];
@@ -42,44 +44,52 @@ phoneItInDrivers.Browser = (function ( browser, document, UI ) {
       return document.getElementById('phin-help');
     }
 
-    function putUnformattedPhoneNumValueIntoInput( inputNum ) {
+    this.      putUnformattedPhoneNumValueIntoInput =
+      function putUnformattedPhoneNumValueIntoInput( inputNum )
+    {
       var input = getInputByNum( inputNum );
       input.enterValue( '5313456789', '(531) 345-6789' );
     }
-    this.putUnformattedPhoneNumValueIntoInput = putUnformattedPhoneNumValueIntoInput;
 
-    function enterCompleteUnformattedPhoneNumber() {
+    this.      enterCompleteUnformattedPhoneNumber =
+      function enterCompleteUnformattedPhoneNumber()
+    {
       currentInput.enterValue( '3212345678', '(321) 234-5678' );
     }
-    this.enterCompleteUnformattedPhoneNumber = enterCompleteUnformattedPhoneNumber;
 
-    function enterPartialUnformattedPhoneNumber() {
+    this.      enterPartialUnformattedPhoneNumber =
+      function enterPartialUnformattedPhoneNumber()
+    {
       currentInput.enterValue( '87632', '(876) 32_-____' );
     }
-    this.enterPartialUnformattedPhoneNumber = enterPartialUnformattedPhoneNumber;
 
-    function navigateToInput( inputNum ) {
+    this.      navigateToInput =
+      function navigateToInput( inputNum )
+    {
       var input = getInputByNum( inputNum );
 
       input.focus();
       priorInput = currentInput;
       currentInput = input;
     }
-    this.navigateToInput = navigateToInput;
 
-    function navigateFromInput() {
+    this.      navigateFromInput =
+      function navigateFromInput()
+    {
       var toInputNum = ( currentInput.getInputNum() % inputs.length ) + 1;
-      navigateToInput( toInputNum );
+      this.navigateToInput( toInputNum );
     }
-    this.navigateFromInput = navigateFromInput;
 
-    function enablePhoneHelpForInput( inputNum ) {
+    this.      enablePhoneHelpForInput =
+      function enablePhoneHelpForInput( inputNum )
+    {
       var input = getInputByNum( inputNum );
       getUi().bindToInput( input.getElement() );
     }
-    this.enablePhoneHelpForInput = enablePhoneHelpForInput;
 
-    function assertPhoneEntryHelpDisplayedForInput( inputNum ) {
+    this.      assertPhoneEntryHelpDisplayedForInput =
+      function assertPhoneEntryHelpDisplayedForInput( inputNum )
+    {
       var contentMismatch,
           input = inputNum ? getInputByNum( inputNum ) : currentInput,
           helpEl = findPhoneHelpElement();
@@ -96,18 +106,20 @@ phoneItInDrivers.Browser = (function ( browser, document, UI ) {
               'but was "' + contentMismatch.actual + '".';
       }
     }
-    this.assertPhoneEntryHelpDisplayedForInput = assertPhoneEntryHelpDisplayedForInput;
 
-    function assertNoPhoneEntryShownForPriorInput() {
+    this.      assertNoPhoneEntryShownForPriorInput =
+      function assertNoPhoneEntryShownForPriorInput()
+    {
       var helpEl = findPhoneHelpElement();
 
       if( helpEl && priorInput.hasAsNextSiblingElement( helpEl ) ) {
         throw "Expected formatted phone entry help not to be shown for input, but it was shown";
       }
     }
-    this.assertNoPhoneEntryShownForPriorInput = assertNoPhoneEntryShownForPriorInput;
 
-    function assertFormattedValueInInput( inputNum ) {
+    this.      assertFormattedValueInInput =
+      function assertFormattedValueInInput( inputNum )
+    {
       var mismatch,
           input = getInputByNum( inputNum );
 
@@ -119,32 +131,33 @@ phoneItInDrivers.Browser = (function ( browser, document, UI ) {
               'but was "' + mismatch.actual + '".';
       }
     }
-    this.assertFormattedValueInInput = assertFormattedValueInInput;
 
-    function assertInputCompletenessIndicated() {
+    this.      assertInputCompletenessIndicated =
+      function assertInputCompletenessIndicated()
+    {
       var helpEl = findPhoneHelpElement();
       if ( ! helpEl.className.match(/\bphin-complete\b/) ) {
         throw "Expected input completeness to be indicated, but was not indicated."
       }
     }
-    this.assertInputCompletenessIndicated = assertInputCompletenessIndicated;
 
-    this.assertInputCompletenessNotIndicated = assertInputCompletenessNotIndicated;
-    function assertInputCompletenessNotIndicated() {
+    this.      assertInputCompletenessNotIndicated =
+      function assertInputCompletenessNotIndicated()
+    {
       var helpEl = findPhoneHelpElement();
       if ( helpEl.className.match(/\bphin-complete\b/) ) {
         throw "Expected input completeness not to be indicated, but was indicated."
       }
     }
-    this.assertInputCompletenessNotIndicated = assertInputCompletenessNotIndicated;
 
-    function assertInputInvalidityNotIndicated() {
+    this.      assertInputInvalidityNotIndicated =
+      function assertInputInvalidityNotIndicated()
+    {
       var helpEl = findPhoneHelpElement();
       if ( helpEl.className.match(/\bphin-invalid\b/) ) {
         throw "Expected input validity not to be indicated, but was indicated."
       }
     }
-    this.assertInputInvalidityNotIndicated = assertInputInvalidityNotIndicated;
   }
 
   return Browser;
@@ -163,46 +176,56 @@ phoneItInDrivers.browser.Input = (function ( document ) {
       formattedValue : ''
     };
 
-    function getInputNum() { return inputNum; }
-    this.getInputNum = getInputNum;
+    this.      getInputNum =
+      function getInputNum()
+    { return inputNum; }
 
-    function getElement() { return element; }
-    this.getElement = getElement;
+    this.      getElement =
+      function getElement()
+    { return element; }
 
-    function hasAsNextSiblingElement( candidateEl ) {
+    this.      hasAsNextSiblingElement =
+      function hasAsNextSiblingElement( candidateEl )
+    {
       return element.nextSibling === candidateEl;
     }
-    this.hasAsNextSiblingElement = hasAsNextSiblingElement;
 
-    function getMentalModel() { return mentalModel; }
-    this.getMentalModel = getMentalModel;
+    this.      getMentalModel =
+      function getMentalModel()
+    { return mentalModel; }
 
-    function enterValue( value, formattedValue ) {
+    this.      enterValue =
+      function enterValue( value, formattedValue )
+    {
       element.value = value;
       element.dispatchEvent( new Event('input') );
       mentalModel.value = value;
       mentalModel.formattedValue = formattedValue;
     }
-    this.enterValue = enterValue;
 
-    function focus() {
+    this.      focus =
+      function focus()
+    {
       element.focus();
     }
-    this.focus = focus;
 
-    function expectValueWasFormatted() {
+    this.      expectValueWasFormatted =
+      function expectValueWasFormatted()
+    {
       mentalModel.value = mentalModel.formattedValue;
     }
-    this.expectValueWasFormatted = expectValueWasFormatted;
 
-    function actualExpectedValueMismatch() {
+    this.      actualExpectedValueMismatch =
+      function actualExpectedValueMismatch()
+    {
       return element.value === mentalModel.value ?
         null :
         { actual: element.value, expected: mentalModel.value };
     }
-    this.actualExpectedValueMismatch = actualExpectedValueMismatch;
 
-    function actualExpectedHelpContentMismatch( helpEl ) {
+    this.      actualExpectedHelpContentMismatch =
+      function actualExpectedHelpContentMismatch( helpEl )
+    {
       var helpContent = helpEl.textContent,
           expectedValue = mentalModel.formattedValue;
 
@@ -210,7 +233,6 @@ phoneItInDrivers.browser.Input = (function ( document ) {
         null :
         { actual: helpContent, expectedToContain: expectedValue };
     }
-    this.actualExpectedHelpContentMismatch = actualExpectedHelpContentMismatch;
   }
 
   return Input;

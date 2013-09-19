@@ -33,26 +33,31 @@ var phoneItIn = (function ( my ) {
     return ui;
   }
 
-  function setupForTelInputs() {
+  my.        setupForTelInputs =
+    function setupForTelInputs()
+  {
     getUi().bindToTelInputs();
   }
-  my.setupForTelInputs = setupForTelInputs;
 
   return my;
 })( phoneItIn || {} );
 
 phoneItIn.UI = (function ( phoneItIn, formatter ) {
+  var proto;
+
   function UI( domAdapter ) {
     function getDomAdapter() {
       return domAdapter;
     }
     this.getDomAdapter = getDomAdapter;
   }
+  proto = UI.prototype;
 
-  function getNewInstance() {
+  UI.        getNewInstance =
+    function getNewInstance()
+  {
     return new UI( phoneItIn.domAdapters.basicAdapter );
-  }
-  UI.getNewInstance = getNewInstance;
+  };
 
   function getFormatter() {
     return phoneItIn.formatters.nanp;
@@ -105,13 +110,16 @@ phoneItIn.UI = (function ( phoneItIn, formatter ) {
     input.addEventListener( 'input' , function(){ updateHelpForInput( my, input ); } );
   }
 
-  function bindToInput( inputDomElement ) {
+  proto.     bindToInput =
+    function bindToInput( inputDomElement )
+  {
     var input = this.getDomAdapter().newElementAdapterFor( inputDomElement );
     bindToInputAdapter( this, input );
   }
-  UI.prototype.bindToInput = bindToInput;
 
-  function bindToTelInputs() {
+  proto.     bindToTelInputs =
+    function bindToTelInputs()
+  {
     var i,
         inputs = this.getDomAdapter().inputsOfType( 'tel' ),
         length = inputs.length;
@@ -120,7 +128,6 @@ phoneItIn.UI = (function ( phoneItIn, formatter ) {
       bindToInputAdapter( this, inputs[i] );
     }
   }
-  UI.prototype.bindToTelInputs = bindToTelInputs;
 
   return UI;
 })( phoneItIn );
@@ -128,31 +135,39 @@ phoneItIn.UI = (function ( phoneItIn, formatter ) {
 phoneItIn.pixelGeometry = phoneItIn.pixelGeometry || {};
 
 phoneItIn.pixelGeometry.Vector2d = (function () {
+  var proto;
+
   function Vector2d( h, v ) {
     this.h = h;
     this.v = v;
   }
+  proto = Vector2d.prototype;
 
-  function getTopLeftStyle() {
+  proto.     getTopLeftStyle =
+    function getTopLeftStyle()
+  {
     return "top: "  + this.v + "px; " +
            "left: " + this.h + "px;"
   }
-  Vector2d.prototype.getTopLeftStyle = getTopLeftStyle;
 
   return Vector2d;
 })();
 
 phoneItIn.pixelGeometry.Box2d = (function ( Vector2d ) {
+  var proto;
+
   function Box2d( l, t, w, h ) {
     this.topLeft = new Vector2d( l, t );
     this.size    = new Vector2d( w, h );
   }
+  proto = Box2d.prototype;
 
-  function below() {
+  proto.     below =
+    function below()
+  {
     var topLeft= this.topLeft;
     return new Vector2d( topLeft.h, topLeft.v + this.size.v );
   }
-  Box2d.prototype.below = below;
 
   return Box2d;
 })( phoneItIn.pixelGeometry.Vector2d );
@@ -160,7 +175,9 @@ phoneItIn.pixelGeometry.Box2d = (function ( Vector2d ) {
 phoneItIn.formatters = phoneItIn.formatters || {};
 
 phoneItIn.formatters.nanp = (function (my) {
-  function digitizeAlpha( value ) {
+  my.        digitizeAlpha =
+    function digitizeAlpha( value )
+  {
     return value
       .replace( /[a-c]/ig , '2' )
       .replace( /[d-f]/ig , '3' )
@@ -171,29 +188,31 @@ phoneItIn.formatters.nanp = (function (my) {
       .replace( /[t-v]/ig , '8' )
       .replace( /[w-z]/ig , '9' );
   }
-  my.digitizeAlpha = digitizeAlpha;
 
-  function format( value ) {
+  my.      format =
+  function format( value )
+  {
     var FORMAT_PATTERN = /^[(]?(...)[)]?(...)-?(....)(.*)$/,
         digits = (value + '__________').replace( /\s/g, '' ).replace( FORMAT_PATTERN, '$1$2$3$4' );
 
     digits = digits.substring( 0, digits.length );
-    digits = digitizeAlpha( digits );
+    digits = my.digitizeAlpha( digits );
     if( digits.length > 20 ) {
       digits = digits.substr( 0, digits.length - 10 );
     } else {
       digits = digits.substr( 0, 10 );
     }
     return digits.replace( FORMAT_PATTERN, '($1) $2-$3 $4' ).replace( / $/, '' );
-  }
-  my.format = format;
+  };
 
-  function validityOf( value ) {
+  my.        validityOf =
+    function validityOf( value )
+  {
     var formatted, digits;
 
     if( value.match(/[^-\dA-Za-z()\s]/) ) { return 'invalid'; }
 
-    formatted = format( value );
+    formatted = my.format( value );
     if( formatted.length > '(___) ___-____'.length ) { return 'invalid' }
 
     digits = formatted.replace( /^[(](...)[)] (...)-(....)$/, "$1$2$3" );
@@ -202,7 +221,6 @@ phoneItIn.formatters.nanp = (function (my) {
 
     return 'complete';
   }
-  my.validityOf = validityOf;
 
   return my;
 })( phoneItIn.formatters.nanp || {} );
@@ -210,24 +228,29 @@ phoneItIn.formatters.nanp = (function (my) {
 phoneItIn.domAdapters = phoneItIn.domAdapters || {};
 
 phoneItIn.domAdapters.basicAdapter = (function ( my, document ) {
-  function newElementAdapterFor( domElement ) {
+  my.        newElementAdapterFor =
+    function newElementAdapterFor( domElement )
+  {
     return domElement ? new my.Element( domElement ) : null;
   }
-  my.newElementAdapterFor = newElementAdapterFor;
 
-  function getElementById( id ) {
+  my.        getElementById =
+    function getElementById( id )
+  {
     var el = document.getElementById( id );
-    return newElementAdapterFor( el );
+    return my.newElementAdapterFor( el );
   }
-  my.getElementById = getElementById;
 
-  function createDiv() {
+  my.        createDiv =
+    function createDiv()
+  {
     var divEl = document.createElement('DIV')
-    return newElementAdapterFor( divEl );
+    return my.newElementAdapterFor( divEl );
   }
-  my.createDiv = createDiv;
 
-  function inputsOfType( desiredType ) {
+  my.        inputsOfType =
+    function inputsOfType( desiredType )
+  {
     var i, input, type,
         inputs = document.getElementsByTagName('INPUT'),
         length = inputs.length,
@@ -243,111 +266,130 @@ phoneItIn.domAdapters.basicAdapter = (function ( my, document ) {
 
     return matchingInputs;
   }
-  my.inputsOfType = inputsOfType;
 
   return my;
 })( phoneItIn.domAdapters.basicAdapter || {}, document );
 
 phoneItIn.domAdapters.basicAdapter.Element = (function () {
+  var proto;
+
   function Element(domElement) {
     function getDomElement() {
       return domElement;
     }
     this.getDomElement = getDomElement;
   }
+  proto = Element.prototype;
 
-  function setInnerHtml( html ) {
+  proto.     setInnerHtml =
+    function setInnerHtml( html )
+  {
     this.getDomElement().innerHTML = html;
   }
-  Element.prototype.setInnerHtml = setInnerHtml;
 
-  function setClassName( className ) {
+  proto.     setClassName =
+    function setClassName( className )
+  {
     this.getDomElement().className = className;
   }
-  Element.prototype.setClassName = setClassName;
 
-  function setId( value ) {
+  proto.     setId =
+    function setId( value )
+  {
     this.getDomElement().id = value;
   }
-  Element.prototype.setId = setId;
 
-  function setStyle( value ) {
+  proto.     setStyle =
+    function setStyle( value )
+  {
     this.getDomElement().setAttribute( 'style', value );
   }
-  Element.prototype.setStyle = setStyle;
 
-  function addEventListener( eventName, listener ) {
+  proto.     addEventListener =
+    function addEventListener( eventName, listener )
+  {
     this.getDomElement().addEventListener( eventName, listener );
   }
-  Element.prototype.addEventListener = addEventListener;
 
-  function getValue() {
+  proto.     getValue =
+    function getValue()
+  {
     return this.getDomElement().value;
   }
-  Element.prototype.getValue = getValue;
 
-  function setValue( newValue ) {
+  proto.     setValue =
+    function setValue( newValue )
+  {
     this.getDomElement().value = newValue;
   }
-  Element.prototype.setValue = setValue;
 
-  function insertNext( elementToInsert ) {
+  proto.     insertNext =
+    function insertNext( elementToInsert )
+  {
     var domElementToInsert = elementToInsert.getDomElement(),
         parentEl = this.getDomElement().parentNode,
         priorNextSiblingEl = this.getDomElement().nextSibling;
 
     parentEl.insertBefore( domElementToInsert, priorNextSiblingEl );
   }
-  Element.prototype.insertNext = insertNext;
 
-  function remove() {
+  proto.     remove =
+    function remove()
+  {
     var domElement = this.getDomElement(),
         parentEl = domElement.parentNode;
 
     parentEl.removeChild( domElement );
   }
-  Element.prototype.remove = remove;
 
-  function getOffsetBox() {
+  proto.     getOffsetBox =
+    function getOffsetBox()
+  {
     return new phoneItIn.pixelGeometry.Box2d(
       this.getDomElement().offsetLeft  , this.getDomElement().offsetTop    ,
       this.getDomElement().offsetWidth , this.getDomElement().offsetHeight
     );
   }
-  Element.prototype.getOffsetBox = getOffsetBox;
 
   return Element;
 })();
 
 phoneItIn.domAdapters.jQueryAdapter = (function ( my, $ ) {
-  function newElementAdapterFor( jQueryArgument ) {
+  my.        newElementAdapterFor =
+    function newElementAdapterFor( jQueryArgument )
+  {
     return jQueryArgument ? new my.Element( jQueryArgument ) : null;
   }
-  my.newElementAdapterFor = newElementAdapterFor;
 
-  function getElementById( id ) {
+  my.        getElementById =
+    function getElementById( id )
+  {
     var jqResult = $('#' + id);
     if( jqResult.size() < 1 ) { return null; }
-    return newElementAdapterFor( jqResult );
+    return my.newElementAdapterFor( jqResult );
   }
-  my.getElementById = getElementById;
 
-  function createDiv() {
-    return newElementAdapterFor('<div>');
+  my.        createDiv =
+    function createDiv()
+  {
+    return my.newElementAdapterFor('<div>');
   }
-  my.createDiv = createDiv;
 
-  function inputsOfType( type ) {
+  my.        inputsOfType =
+    function inputsOfType( type )
+  {
     var jqResult = $( 'input[type=' + type + ']' );
     return jqResult.map(
-      function () { return newElementAdapterFor( this ); }
+      function () { return my.newElementAdapterFor( this ); }
     ).toArray();
   }
-  my.inputsOfType = inputsOfType;
+
   return my;
 })( phoneItIn.domAdapters.jQueryAdapter || {}, jQuery );
 
 phoneItIn.domAdapters.jQueryAdapter.Element = (function () {
+  var proto;
+
   function Element(domOrJQueryElement) {
     var jQueryElement = $(domOrJQueryElement);
 
@@ -356,58 +398,71 @@ phoneItIn.domAdapters.jQueryAdapter.Element = (function () {
     }
     this.getJQueryElement = getJQueryElement;
   }
+  proto = Element.prototype;
 
-  function getDomElement() {
+  proto.     getDomElement =
+    function getDomElement()
+  {
     return this.getJQueryElement()[0];
   }
-  Element.prototype.getDomElement = getDomElement;
 
-  function setInnerHtml( html ) {
+  proto.     setInnerHtml =
+    function setInnerHtml( html )
+  {
     this.getJQueryElement().html( html );
   }
-  Element.prototype.setInnerHtml = setInnerHtml;
 
-  function setClassName( className ) {
+  proto.     setClassName =
+    function setClassName( className )
+  {
     this.getJQueryElement().attr( 'class', className );
   }
-  Element.prototype.setClassName = setClassName;
 
-  function setId( id ) {
+  proto.     setId =
+    function setId( id )
+  {
     this.getJQueryElement().attr( 'id', id );
   }
-  Element.prototype.setId = setId;
 
-  function setStyle( id ) {
+  proto.     setStyle =
+    function setStyle( id )
+  {
     this.getJQueryElement().attr( 'style', id );
   }
-  Element.prototype.setStyle = setStyle;
 
-  function addEventListener( eventName, listener ) {
+  proto.     addEventListener =
+    function addEventListener( eventName, listener )
+  {
     this.getJQueryElement().on( eventName, listener );
   }
-  Element.prototype.addEventListener = addEventListener;
 
-  function getValue() {
+  proto.     getValue =
+    function getValue()
+  {
     return this.getJQueryElement().val();
   }
-  Element.prototype.getValue = getValue;
 
-  function setValue( value ) {
+  proto.     setValue =
+    function setValue( value )
+  {
     this.getJQueryElement().val( value );
   }
-  Element.prototype.setValue = setValue;
 
-  function insertNext( elementToInsert ) {
+  proto.     insertNext =
+    function insertNext( elementToInsert )
+  {
     this.getJQueryElement().after( elementToInsert.getDomElement() );
   }
-  Element.prototype.insertNext = insertNext;
 
-  function remove() {
+  proto.     remove =
+    function remove()
+  {
     this.getJQueryElement().detach();
   }
-  Element.prototype.remove = remove;
 
-  function getOffsetBox() {
+  proto.     getOffsetBox =
+    function getOffsetBox()
+  {
     var jqEl = this.getJQueryElement(),
         position = jqEl.position();
 
@@ -416,7 +471,6 @@ phoneItIn.domAdapters.jQueryAdapter.Element = (function () {
       jqEl.outerWidth() , jqEl.outerHeight()
     );
   }
-  Element.prototype.getOffsetBox = getOffsetBox;
 
   return Element;
 })();
