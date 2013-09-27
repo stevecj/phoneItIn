@@ -45,18 +45,25 @@ var phoneItIn = (function ( my ) {
 phoneItIn.UI = (function ( phoneItIn, formatter ) {
   var proto;
 
-  function UI( domAdapter ) {
-    function getDomAdapter() {
+  function UI( domAdapter, actsAsLiveChangeSource ) {
+    this.      getDomAdapter =
+      function getDomAdapter()
+    {
       return domAdapter;
-    }
-    this.getDomAdapter = getDomAdapter;
+    };
+
+    this.      getActsAsLiveChangeSource =
+      function getActsAsLiveChangeSource()
+    {
+      return actsAsLiveChangeSource
+    };
   }
   proto = UI.prototype;
 
   UI.        getNewInstance =
     function getNewInstance()
   {
-    return new UI( phoneItIn.domAdapters.basicAdapter );
+    return new UI( phoneItIn.domAdapters.basicAdapter, phoneItIn.actsAsLiveChangeSource );
   };
 
   function getFormatter() {
@@ -104,10 +111,12 @@ phoneItIn.UI = (function ( phoneItIn, formatter ) {
   }
 
   function bindToInputAdapter( my, input ) {
+    my.getActsAsLiveChangeSource().extendElementAdapter( input );
+
     input.addFocusListener( function(){ addHelpToInput( my, input ); } );
     input.addBlurListener( function(){ formatValueOfInput( input ); } );
     input.addBlurListener( function(){ removeHelp( my ); } );
-    input.addInputListener( function(){ updateHelpForInput( my, input ); } );
+    input.addLiveChangeListener( function(){ updateHelpForInput( my, input ); } );
   }
 
   proto.     bindToInput =
@@ -225,6 +234,91 @@ phoneItIn.formatters.nanp = (function (my) {
   return my;
 })( phoneItIn.formatters.nanp || {} );
 
+phoneItIn.Strobe = (function ( window ) {
+  function Strobe( listener, intervalMs ) {
+    var intervalId;
+
+    this.      start =
+      function start()
+    {
+      if ( ! intervalId ) {
+        intervalId = window.setInterval( listener, intervalMs );
+      }
+    };
+
+    this.      stop =
+      function stop()
+    {
+      if ( intervalId ) {
+        window.clearInterval( intervalId );
+        intervalId = null;
+      }
+    };
+  }
+
+  function Base() { }
+  Base.prototype = Strobe.prototype;
+
+  Strobe.    getNewInstance =
+    function getNewInstance()
+  {
+    var instance = new Base();
+    Strobe.apply( instance, arguments );
+    return instance;
+  }
+
+  return Strobe;
+})( window );
+
+phoneItIn.ChangeDetector = (function ( Strobe ) {
+  function ChangeDetector( getValue, listener, options ) {
+    var createStrobe, strobe, lastKnownValue,
+        STROBE_INTERVAL_MS = 75;
+
+    options = options || {};
+    createStrobe = options.createStrobe || Strobe.getNewInstance;
+
+    this.      start =
+      function start()
+    {
+      lastKnownValue = getValue();
+      listener();
+      strobe.start();
+    };
+
+    this.      stop =
+      function stop()
+    {
+      strobe.stop();
+    };
+
+    this.      poll =
+      function poll()
+    {
+      var currentValue = getValue();
+      if( currentValue !== lastKnownValue ) {
+        listener();
+      }
+      lastKnownValue = currentValue;
+    };
+
+    strobe = createStrobe( this.poll, STROBE_INTERVAL_MS );
+  }
+
+  function Base() { };
+  Base.prototype = ChangeDetector.prototype;
+
+  ChangeDetector. getNewInstance =
+    function      getNewInstance()
+  {
+    var instance = new Base();
+    ChangeDetector.apply( instance, arguments );
+    return instance;
+  }
+
+  return ChangeDetector;
+})( phoneItIn.Strobe );
+
 phoneItIn.domAdapters = phoneItIn.domAdapters || {};
 
 phoneItIn.domAdapters.basicAdapter = (function ( my, document ) {
@@ -274,10 +368,19 @@ phoneItIn.domAdapters.basicAdapter.Element = (function () {
   var proto;
 
   function Element(domElement) {
-    function getDomElement() {
+    var my = this;
+
+    this.      getDomElement =
+      function getDomElement()
+    {
       return domElement;
-    }
-    this.getDomElement = getDomElement;
+    };
+
+    this.      boundGetValue =
+      function boundGetValue()
+    {
+      return my.getValue();
+    };
   }
   proto = Element.prototype;
 
@@ -285,55 +388,61 @@ phoneItIn.domAdapters.basicAdapter.Element = (function () {
     function setInnerHtml( html )
   {
     this.getDomElement().innerHTML = html;
-  }
+  };
 
   proto.     setClassName =
     function setClassName( className )
   {
     this.getDomElement().className = className;
-  }
+  };
 
   proto.     setId =
     function setId( value )
   {
     this.getDomElement().id = value;
-  }
+  };
 
   proto.     setStyle =
     function setStyle( value )
   {
     this.getDomElement().setAttribute( 'style', value );
-  }
+  };
 
   proto.     addFocusListener =
     function addFocusListener( listener )
   {
     this.getDomElement().addEventListener( 'focus', listener );
-  }
+  };
 
   proto.     addBlurListener =
     function addBlurListener( listener )
   {
     this.getDomElement().addEventListener( 'blur', listener );
-  }
+  };
 
   proto.     addInputListener =
     function addInputListener( listener )
   {
     this.getDomElement().addEventListener( 'input', listener );
-  }
+  };
+
+  proto.     doesSupportInputEvent =
+    function doesSupportInputEvent()
+  {
+    return typeof (this.getDomElement().oninput) !== 'undefined';
+  };
 
   proto.     getValue =
     function getValue()
   {
     return this.getDomElement().value;
-  }
+  };
 
   proto.     setValue =
     function setValue( newValue )
   {
     this.getDomElement().value = newValue;
-  }
+  };
 
   proto.     insertNext =
     function insertNext( elementToInsert )
@@ -343,7 +452,7 @@ phoneItIn.domAdapters.basicAdapter.Element = (function () {
         priorNextSiblingEl = this.getDomElement().nextSibling;
 
     parentEl.insertBefore( domElementToInsert, priorNextSiblingEl );
-  }
+  };
 
   proto.     remove =
     function remove()
@@ -352,7 +461,7 @@ phoneItIn.domAdapters.basicAdapter.Element = (function () {
         parentEl = domElement.parentNode;
 
     parentEl.removeChild( domElement );
-  }
+  };
 
   proto.     getOffsetBox =
     function getOffsetBox()
@@ -361,7 +470,7 @@ phoneItIn.domAdapters.basicAdapter.Element = (function () {
       this.getDomElement().offsetLeft  , this.getDomElement().offsetTop    ,
       this.getDomElement().offsetWidth , this.getDomElement().offsetHeight
     );
-  }
+  };
 
   return Element;
 })();
@@ -408,10 +517,19 @@ phoneItIn.domAdapters.jQueryAdapter.Element = (function ( pixelGeometry ) {
   var proto;
 
   function Element(jQueryElement) {
-    function getJQueryElement() {
+    var my = this;
+
+    this.getJQueryElement =
+      function getJQueryElement()
+    {
       return jQueryElement;
-    }
-    this.getJQueryElement = getJQueryElement;
+    };
+
+    this.      boundGetValue =
+      function boundGetValue()
+    {
+      return my.getValue();
+    };
   }
   proto = Element.prototype;
 
@@ -463,6 +581,14 @@ phoneItIn.domAdapters.jQueryAdapter.Element = (function ( pixelGeometry ) {
     this.getJQueryElement().on( 'input', listener );
   }
 
+  proto.     doesSupportInputEvent =
+    function doesSupportInputEvent()
+  {
+    // jQuery has no public API for detecting input event support,
+    // so drill down and check the DOM element directly.
+    var domElement = this.getJQueryElement()[0];
+    return typeof (domElement.oninput) !== 'undefined';
+  };
 
   proto.     getValue =
     function getValue()
@@ -502,3 +628,57 @@ phoneItIn.domAdapters.jQueryAdapter.Element = (function ( pixelGeometry ) {
 
   return Element;
 })( phoneItIn.pixelGeometry );
+
+phoneItIn.actsAsLiveChangeSource = (function ( my ) {
+  my.        extendElementAdapter =
+    function extendElementAdapter( elementAdapter )
+  {
+    var extender = new my.Extender( my.EventBinding.getNewInstance );
+    return extender.extend( elementAdapter );
+  }
+
+  return my;
+})( phoneItIn.actsAsLiveChangeSource || {} );
+
+phoneItIn.actsAsLiveChangeSource.Extender = (function ( ChangeDetector ) {
+  function Extender( createEventBinding ) {
+    this. extend =
+      function extend( elementAdapter )
+    {
+      if( elementAdapter.addLiveChangeListener ) { return; }
+
+      elementAdapter. addLiveChangeListener =
+        function      addLiveChangeListener( listener )
+      {
+        if( elementAdapter.doesSupportInputEvent() ) {
+          elementAdapter.addInputListener( listener );
+        } else {
+          createEventBinding( elementAdapter, listener, ChangeDetector.getNewInstance );
+        }
+      };
+    };
+  }
+
+  return Extender;
+})( phoneItIn.ChangeDetector );
+
+phoneItIn.actsAsLiveChangeSource.EventBinding = (function () {
+  function EventBinding( elementAdapter, listener, createChangeDetector ) {
+    var changeDetector = createChangeDetector( elementAdapter.boundGetValue, listener );
+    elementAdapter.addFocusListener( function () { changeDetector.start(); } );
+    elementAdapter.addBlurListener(  function () { changeDetector.stop();  } );
+  }
+
+  function Base() { }
+  Base.prototype = EventBinding.prototype;
+
+  EventBinding. getNewInstance =
+    function    getNewInstance()
+  {
+    var instance = new Base();
+    EventBinding.apply( instance, arguments );
+    return instance;
+  };
+
+  return EventBinding;
+})();

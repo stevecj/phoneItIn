@@ -154,8 +154,6 @@ describe( 'phoneItIn.domAdapters', function () {
           });
         });
 
-        // TODO: Special handling for input event for older browsers.
-
         describe ( "event handler binding", function() {
           var otherInputEl;
 
@@ -199,12 +197,29 @@ describe( 'phoneItIn.domAdapters', function () {
               expect( gotInput ).toEqual( true );
             });
           });
+
+          describe( '#doesSupportInputEvent()', function () {
+            // Specs are expected to be run in modern browser that would
+            // naturally support the input event, so there's no useful test
+            // we can write for the false case.
+            it( "returns true in any browser we would try to run specs in", function () {
+              expect( element.doesSupportInputEvent() ).toEqual( true );
+            });
+          });
         });
 
         describe( '#getValue()', function () {
           it( "returns the underlying input element's value", function () {
             underlyingEl.value = 'cinnamon';
             expect( element.getValue() ).toEqual( 'cinnamon' );
+          });
+        });
+
+        describe( '#boundGetValue()', function () {
+          it( "gets the value when called as a function", function () {
+            var boundGetValue = element.boundGetValue;
+            underlyingEl.value = 'nutmeg';
+            expect( boundGetValue() ).toEqual( 'nutmeg' );
           });
         });
 
