@@ -55,7 +55,7 @@ describe( 'phoneItIn.actsAsLiveChangeSource', function () {
 
           it( "creates an EventBinding from the element adapter to the listener", function() {
             elementAdapter.addLiveChangeListener( listener );
-            expect( createEventBinding ).toHaveBeenCalledWith( elementAdapter, listener, phoneItIn.ChangeDetector.getNewInstance );
+            expect( createEventBinding ).toHaveBeenCalledWith( elementAdapter, listener, phoneItIn.ChangeDetector.create );
           });
         });
       });
@@ -74,16 +74,9 @@ describe( 'phoneItIn.actsAsLiveChangeSource', function () {
       createChangeDetector = jasmine.createSpy('createChangeDetector').andReturn( changeDetector );
     });
 
-    describe( '.getNewInstance()', function () {
-      it( "creates a new EventBinding instance when called as a function", function () {
-        var getNewInstance = EventBinding.getNewInstance;
-        expect( getNewInstance( elementAdapter, listener, createChangeDetector ) ).toEqual( jasmine.any(EventBinding) );
-      });
-    });
-
-    describe( "initialization", function () {
+    describe( "instantiation", function () {
       it( "creates a detector to call the listener when the element value changes", function () {
-        new EventBinding( elementAdapter, listener, createChangeDetector );
+        EventBinding.create( elementAdapter, listener, createChangeDetector );
         expect( createChangeDetector ).toHaveBeenCalledWith( elementAdapter.boundGetValue, listener );
       });
     });
@@ -105,8 +98,5 @@ describe( 'phoneItIn.actsAsLiveChangeSource', function () {
         expect( changeDetector.stop ).toHaveBeenCalled();
       });
     });
-
-    // TODO: ...
-    // When the element loses focus, stops the change detector.
   });
 });

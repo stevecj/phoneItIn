@@ -20,7 +20,7 @@ describe( 'phoneItIn', function () {
       actsAsLiveChangeSource = {
         extendElementAdapter: jasmine.createSpy('extendElementAdapter')
       };
-      ui = new phoneItIn.UI( domAdapter, actsAsLiveChangeSource );
+      ui = phoneItIn.UI.create( domAdapter, actsAsLiveChangeSource );
     });
 
     describe( '#bindToInput', function () {

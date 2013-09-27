@@ -28,19 +28,40 @@
 var phoneItIn = (function ( my ) {
   var ui;
 
-  function getUi() {
-    ui = ui || my.UI.getNewInstance();
+  my.        getUi =
+    function getUi()
+  {
+    ui = ui || my.UI.create( phoneItIn.domAdapters.basicAdapter, phoneItIn.actsAsLiveChangeSource );
     return ui;
   }
 
   my.        setupForTelInputs =
     function setupForTelInputs()
   {
-    getUi().bindToTelInputs();
+    my.getUi().bindToTelInputs();
   }
 
   return my;
 })( phoneItIn || {} );
+
+phoneItIn.objectInstantiation = (function( my ) {
+  my.        makeCreatorFunction =
+    function makeCreatorFunction( constructor )
+  {
+    function Base() { }
+    Base.prototype = constructor.prototype;
+
+    function create() {
+      var instance = new Base();
+      constructor.apply( instance, arguments );
+      return instance;
+    }
+
+    return create;
+  };
+
+  return my;
+})( phoneItIn.objectInstantiation || {} );
 
 phoneItIn.UI = (function ( phoneItIn, formatter ) {
   var proto;
@@ -60,10 +81,10 @@ phoneItIn.UI = (function ( phoneItIn, formatter ) {
   }
   proto = UI.prototype;
 
-  UI.        getNewInstance =
-    function getNewInstance()
+  UI.        create =
+    function create( domAdapter, actsAsLiveChangeSource )
   {
-    return new UI( phoneItIn.domAdapters.basicAdapter, phoneItIn.actsAsLiveChangeSource );
+    return new UI( domAdapter, actsAsLiveChangeSource );
   };
 
   function getFormatter() {
@@ -256,16 +277,7 @@ phoneItIn.Strobe = (function ( window ) {
     };
   }
 
-  function Base() { }
-  Base.prototype = Strobe.prototype;
-
-  Strobe.    getNewInstance =
-    function getNewInstance()
-  {
-    var instance = new Base();
-    Strobe.apply( instance, arguments );
-    return instance;
-  }
+  Strobe.create = phoneItIn.objectInstantiation.makeCreatorFunction( Strobe );
 
   return Strobe;
 })( window );
@@ -276,7 +288,7 @@ phoneItIn.ChangeDetector = (function ( Strobe ) {
         STROBE_INTERVAL_MS = 75;
 
     options = options || {};
-    createStrobe = options.createStrobe || Strobe.getNewInstance;
+    createStrobe = options.createStrobe || Strobe.create;
 
     this.      start =
       function start()
@@ -305,16 +317,7 @@ phoneItIn.ChangeDetector = (function ( Strobe ) {
     strobe = createStrobe( this.poll, STROBE_INTERVAL_MS );
   }
 
-  function Base() { };
-  Base.prototype = ChangeDetector.prototype;
-
-  ChangeDetector. getNewInstance =
-    function      getNewInstance()
-  {
-    var instance = new Base();
-    ChangeDetector.apply( instance, arguments );
-    return instance;
-  }
+  ChangeDetector.create = phoneItIn.objectInstantiation.makeCreatorFunction( ChangeDetector );
 
   return ChangeDetector;
 })( phoneItIn.Strobe );
@@ -633,7 +636,7 @@ phoneItIn.actsAsLiveChangeSource = (function ( my ) {
   my.        extendElementAdapter =
     function extendElementAdapter( elementAdapter )
   {
-    var extender = new my.Extender( my.EventBinding.getNewInstance );
+    var extender = new my.Extender( my.EventBinding.create );
     return extender.extend( elementAdapter );
   }
 
@@ -653,7 +656,7 @@ phoneItIn.actsAsLiveChangeSource.Extender = (function ( ChangeDetector ) {
         if( elementAdapter.doesSupportInputEvent() ) {
           elementAdapter.addInputListener( listener );
         } else {
-          createEventBinding( elementAdapter, listener, ChangeDetector.getNewInstance );
+          createEventBinding( elementAdapter, listener, ChangeDetector.create );
         }
       };
     };
@@ -672,13 +675,7 @@ phoneItIn.actsAsLiveChangeSource.EventBinding = (function () {
   function Base() { }
   Base.prototype = EventBinding.prototype;
 
-  EventBinding. getNewInstance =
-    function    getNewInstance()
-  {
-    var instance = new Base();
-    EventBinding.apply( instance, arguments );
-    return instance;
-  };
+  EventBinding.create = phoneItIn.objectInstantiation.makeCreatorFunction( EventBinding );
 
   return EventBinding;
 })();

@@ -10,15 +10,7 @@ describe( 'phoneItIn.ChangeDetector', function () {
       stop  : jasmine.createSpy( 'stop'  )
     };
     createStrobe = jasmine.createSpy('createStrobe').andReturn( strobe );
-    detector = new ChangeDetector( getValue, listener, {createStrobe: createStrobe} );
-  });
-
-  describe( '.getNewInstance', function() {
-    it( "creates a new Strobe instance when invoked as a function", function () {
-      var getNewInstance = ChangeDetector.getNewInstance;
-      detector = getNewInstance( function () { }, 1 );
-      expect( detector.constructor ).toEqual( ChangeDetector );
-    });
+    detector = ChangeDetector.create( getValue, listener, {createStrobe: createStrobe} );
   });
 
   it( "should have a strobe to call its #poll method", function () {

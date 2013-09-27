@@ -9,10 +9,10 @@ describe( 'Strobe', function () {
     strobe = null;
   });
 
-  describe( '.getNewInstance', function() {
+  describe( '.create', function() {
     it( "creates a new Strobe instance when invoked as a function", function () {
-      var getNewInstance = Strobe.getNewInstance;
-      strobe = getNewInstance( function () { }, 1 );
+      var create = Strobe.create;
+      strobe = create( function () { }, 1 );
       expect( strobe.constructor ).toEqual( Strobe );
     });
   });
@@ -21,7 +21,7 @@ describe( 'Strobe', function () {
     it( "does not call the listener before 1 interval has elapsed", function () {
       var callCount = 0;
 
-      strobe = new Strobe( function () {
+      strobe = Strobe.create( function () {
         callCount += 1;
       }, 75 );
 
@@ -32,7 +32,7 @@ describe( 'Strobe', function () {
     it( "starts calling the listener once per interval", function () {
       var callCount = 0;
 
-      strobe = Strobe.getNewInstance( function () {
+      strobe = Strobe.create( function () {
         callCount += 1;
       }, 75 );
 
@@ -49,7 +49,7 @@ describe( 'Strobe', function () {
     it( "ceases calling the listener", function() {
       var callCount = 0;
 
-      strobe = Strobe.getNewInstance( function () {
+      strobe = Strobe.create( function () {
         callCount += 1;
       }, 100 );
 

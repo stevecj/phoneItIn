@@ -1,9 +1,9 @@
 var phoneItInDrivers = phoneItInDrivers || {};
 phoneItInDrivers.browser = {};
 
-phoneItInDrivers.Browser = (function ( browser, document, UI ) {
+phoneItInDrivers.Browser = (function ( browser, document, phoneItIn ) {
   function Browser() {
-    var fixtureEl, inputs, currentInput, priorInput, ui;
+    var fixtureEl, inputs, currentInput, priorInput;
 
     this.      teardown =
       function teardown()
@@ -12,11 +12,6 @@ phoneItInDrivers.Browser = (function ( browser, document, UI ) {
         document.body.removeChild( fixtureEl );
       }
       fixtureEl = null;
-    }
-
-    function getUi() {
-      ui = ui || UI.getNewInstance();
-      return ui;
     }
 
     function getFixtureEl() {
@@ -84,7 +79,7 @@ phoneItInDrivers.Browser = (function ( browser, document, UI ) {
       function enablePhoneHelpForInput( inputNum )
     {
       var input = getInputByNum( inputNum );
-      getUi().bindToInput( input.getElement() );
+      phoneItIn.getUi().bindToInput( input.getElement() );
     }
 
     this.      assertPhoneEntryHelpDisplayedForInput =
@@ -161,7 +156,7 @@ phoneItInDrivers.Browser = (function ( browser, document, UI ) {
   }
 
   return Browser;
-})( phoneItInDrivers.browser, document, phoneItIn.UI );
+})( phoneItInDrivers.browser, document, phoneItIn );
 
 phoneItInDrivers.browser.Input = (function ( document ) {
   function Input( parentEl, inputNum ) {
